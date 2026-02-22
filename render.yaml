@@ -11,8 +11,15 @@ services:
       - key: PORT
         value: 3000
       - key: SESSION_SECRET
-        generateValue: true   # Render gera automaticamente
-    disk:
-      name: leaobaio-data
-      mountPath: /opt/render/project/src
-      sizeGB: 1               # Persiste uploads e banco de dados
+        generateValue: true
+      - key: TURSO_DATABASE_URL
+        sync: false          # preencher manualmente no painel do Render
+      - key: TURSO_AUTH_TOKEN
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+    # Sem "disk:" — banco no Turso, imagens no Cloudinary ✅
