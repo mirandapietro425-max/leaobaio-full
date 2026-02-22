@@ -112,7 +112,7 @@ async function initDB() {
   const defaults = {
     admin_password:      'leaobaio123',
     store_name:          'Leão Baio',
-    hero_title:          'MODA PREMIUM',
+    hero_title:          'LEÃO BAIO MODA CASUAL',
     hero_subtitle:       'Estilo que ruge · Qualidade que impõe',
     hero_badge:          '✦ Nova Coleção 2026 ✦',
     announcement:        '✦ FRETE GRÁTIS ACIMA DE R$299 · COLEÇÃO NOVA DISPONÍVEL · DESCONTO DE ATÉ 40% ✦',
