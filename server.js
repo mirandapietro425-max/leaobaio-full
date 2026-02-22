@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const multer     = require('multer');
 const path       = require('path');
 const cloudinary = require('cloudinary').v2;
+const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const nodemailer = require('nodemailer');
 const { createClient } = require('@libsql/client');
 
 const app  = express();
@@ -63,6 +65,47 @@ async function getSetting(key) {
 async function setSetting(key, value) {
   await q('INSERT OR REPLACE INTO settings(key,value) VALUES(?,?)', [key, value]);
 }
+
+function getMailTransporter() {
+  return nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+      user: process.env.EMAIL_USER,
+      pass: process.env.EMAIL_PASS,
+    },
+  });
+}
+
+async function sendOrderConfirmation(customer, items, total, orderId) {
+  try {
+    const transporter = getMailTransporter();
+    const itemsHtml = items.map(i =>
+      `<tr>
+        <td style="padding:8px;border-bottom:1px solid #333;color:#ccc">${i.name}${i.size ? ' - ' + i.size : ''} x${i.qty}</td>
+        <td style="padding:8px;border-bottom:1px solid #333;color:#D4AF37;text-align:right">R$ ${(i.price * i.qty).toFixed(2).replace('.', ',')}</td>
+      </tr>`
+    ).join('');
+    await transporter.sendMail({
+      from: `"Leao Baio Store" <${process.env.EMAIL_USER}>`,
+      to: customer.email,
+      subject: `Pedido #${orderId} Confirmado - Leao Baio`,
+      html: `<div style="background:#0A0A0A;color:#fff;font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px">
+        <h1 style="color:#D4AF37;text-align:center;letter-spacing:4px">LEAO BAIO</h1>
+        <h2 style="color:#D4AF37">Pedido #${orderId} Confirmado!</h2>
+        <p>Ola, ${customer.name}! Seu pedido foi confirmado com sucesso.</p>
+        <table style="width:100%;border-collapse:collapse">${itemsHtml}
+          <tr><td style="padding:12px 8px;color:#888">TOTAL</td>
+          <td style="padding:12px 8px;color:#D4AF37;font-size:18px;font-weight:bold;text-align:right">R$ ${total.toFixed(2).replace('.', ',')}</td></tr>
+        </table>
+        <p style="color:#ccc">Endereco: ${customer.address}, ${customer.city} - CEP ${customer.cep}</p>
+        <p style="color:#888;font-size:13px">Entraremos em contato pelo WhatsApp para confirmar o envio.</p>
+      </div>`,
+    });
+  } catch (e) {
+    console.error('Email error:', e.message);
+  }
+}
+
 function requireAuth(req, res, next) {
   if (req.session.admin) return next();
   res.status(401).json({ error: 'Não autenticado.' });
@@ -106,6 +149,19 @@ async function initDB() {
   await q(`CREATE TABLE IF NOT EXISTS settings (
     key   TEXT PRIMARY KEY,
     value TEXT
+  )`);
+
+  await q(`CREATE TABLE IF NOT EXISTS orders (
+    id                INTEGER PRIMARY KEY AUTOINCREMENT,
+    payment_intent_id TEXT    NOT NULL,
+    customer_name     TEXT    NOT NULL,
+    customer_email    TEXT    NOT NULL,
+    customer_phone    TEXT    DEFAULT '',
+    customer_address  TEXT    DEFAULT '',
+    items_json        TEXT    NOT NULL,
+    total             REAL    NOT NULL DEFAULT 0,
+    status            TEXT    DEFAULT 'paid',
+    created_at        TEXT    DEFAULT (datetime('now'))
   )`);
 
   // Configurações padrão (só insere se não existir)
@@ -470,10 +526,70 @@ app.put('/api/admin/settings', requireAuth, async (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════
+//  CHECKOUT - STRIPE
+// ════════════════════════════════════════════════════════════
+
+app.post('/api/checkout/create-payment-intent', async (req, res) => {
+  try {
+    const { items, customer } = req.body;
+    if (!items || !items.length) return res.status(400).json({ error: 'Carrinho vazio.' });
+    const total = items.reduce((s, i) => s + (i.price * i.qty), 0);
+    const amountCents = Math.round(total * 100);
+    if (amountCents < 50) return res.status(400).json({ error: 'Valor minimo: R$ 0,50' });
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: amountCents,
+      currency: 'brl',
+      metadata: { customer_name: customer?.name || '', customer_email: customer?.email || '' },
+    });
+    res.json({ clientSecret: paymentIntent.client_secret });
+  } catch (e) {
+    console.error('Stripe error:', e.message);
+    res.status(500).json({ error: 'Erro ao processar pagamento.' });
+  }
+});
+
+app.post('/api/checkout/confirm', async (req, res) => {
+  try {
+    const { paymentIntentId, items, customer, total } = req.body;
+    const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
+    if (pi.status !== 'succeeded') return res.status(400).json({ error: 'Pagamento nao confirmado.' });
+    const r = await q(
+      `INSERT INTO orders (payment_intent_id,customer_name,customer_email,customer_phone,customer_address,items_json,total,status) VALUES (?,?,?,?,?,?,?,?)`,
+      [paymentIntentId, customer.name, customer.email, customer.phone || '',
+       `${customer.address}, ${customer.city} - CEP ${customer.cep}`,
+       JSON.stringify(items), total, 'paid']
+    );
+    const orderId = Number(r.lastInsertRowid);
+    await sendOrderConfirmation(customer, items, total, orderId);
+    res.json({ ok: true, orderId });
+  } catch (e) {
+    console.error('Confirm error:', e.message);
+    res.status(500).json({ error: 'Erro ao confirmar pedido.' });
+  }
+});
+
+app.get('/api/admin/orders', requireAuth, async (req, res) => {
+  try {
+    const orders = await qa('SELECT * FROM orders ORDER BY created_at DESC LIMIT 100');
+    res.json(orders.map(o => ({ ...o, items: JSON.parse(o.items_json || '[]') })));
+  } catch (e) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+// ════════════════════════════════════════════════════════════
 //  FRONTEND (SPA)
 // ════════════════════════════════════════════════════════════
 
-app.get('/',        (req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
+app.get('/', (req, res) => {
+  const fs = require('fs');
+  try {
+    let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    html = html.replace('STRIPE_PUBLISHABLE_KEY_PLACEHOLDER', process.env.STRIPE_PUBLISHABLE_KEY || '');
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (e) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
 app.get('/admin',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
