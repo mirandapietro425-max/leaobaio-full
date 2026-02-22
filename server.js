@@ -72,43 +72,41 @@ function requireAuth(req, res, next) {
 //  INIT DB
 // ════════════════════════════════════════════════════════════
 async function initDB() {
-  await db.executeMultiple(`
-    CREATE TABLE IF NOT EXISTS categories (
-      id         INTEGER PRIMARY KEY AUTOINCREMENT,
-      name       TEXT    NOT NULL,
-      gender     TEXT    NOT NULL DEFAULT 'Unissex',
-      sort_order INTEGER DEFAULT 0,
-      created_at TEXT    DEFAULT (datetime('now'))
-    );
+  await q(`CREATE TABLE IF NOT EXISTS categories (
+    id         INTEGER PRIMARY KEY AUTOINCREMENT,
+    name       TEXT    NOT NULL,
+    gender     TEXT    NOT NULL DEFAULT 'Unissex',
+    sort_order INTEGER DEFAULT 0,
+    created_at TEXT    DEFAULT (datetime('now'))
+  )`);
 
-    CREATE TABLE IF NOT EXISTS products (
-      id             INTEGER PRIMARY KEY AUTOINCREMENT,
-      category_id    INTEGER NOT NULL,
-      name           TEXT    NOT NULL,
-      description    TEXT    DEFAULT '',
-      price          REAL    NOT NULL DEFAULT 0,
-      price_original REAL    DEFAULT 0,
-      badge          TEXT    DEFAULT '',
-      sizes          TEXT    DEFAULT '[]',
-      active         INTEGER DEFAULT 1,
-      sort_order     INTEGER DEFAULT 0,
-      created_at     TEXT    DEFAULT (datetime('now'))
-    );
+  await q(`CREATE TABLE IF NOT EXISTS products (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    category_id    INTEGER NOT NULL,
+    name           TEXT    NOT NULL,
+    description    TEXT    DEFAULT '',
+    price          REAL    NOT NULL DEFAULT 0,
+    price_original REAL    DEFAULT 0,
+    badge          TEXT    DEFAULT '',
+    sizes          TEXT    DEFAULT '[]',
+    active         INTEGER DEFAULT 1,
+    sort_order     INTEGER DEFAULT 0,
+    created_at     TEXT    DEFAULT (datetime('now'))
+  )`);
 
-    CREATE TABLE IF NOT EXISTS product_images (
-      id             INTEGER PRIMARY KEY AUTOINCREMENT,
-      product_id     INTEGER NOT NULL,
-      filename       TEXT    NOT NULL,
-      cloudinary_id  TEXT    DEFAULT '',
-      sort_order     INTEGER DEFAULT 0,
-      created_at     TEXT    DEFAULT (datetime('now'))
-    );
+  await q(`CREATE TABLE IF NOT EXISTS product_images (
+    id             INTEGER PRIMARY KEY AUTOINCREMENT,
+    product_id     INTEGER NOT NULL,
+    filename       TEXT    NOT NULL,
+    cloudinary_id  TEXT    DEFAULT '',
+    sort_order     INTEGER DEFAULT 0,
+    created_at     TEXT    DEFAULT (datetime('now'))
+  )`);
 
-    CREATE TABLE IF NOT EXISTS settings (
-      key   TEXT PRIMARY KEY,
-      value TEXT
-    );
-  `);
+  await q(`CREATE TABLE IF NOT EXISTS settings (
+    key   TEXT PRIMARY KEY,
+    value TEXT
+  )`);
 
   // Configurações padrão (só insere se não existir)
   const defaults = {
