@@ -6,20 +6,38 @@ services:
     buildCommand: npm install
     startCommand: npm start
     envVars:
+      # ── Servidor ──────────────────────────────────────────────
       - key: NODE_ENV
         value: production
       - key: PORT
         value: 3000
       - key: SESSION_SECRET
-        generateValue: true
+        generateValue: true          # Render gera automaticamente
+
+      # ── Turso (banco de dados) ─────────────────────────────────
       - key: TURSO_DATABASE_URL
-        sync: false          # preencher manualmente no painel do Render
+        sync: false                  # libsql://leaobaio-db-usuario.turso.io
       - key: TURSO_AUTH_TOKEN
-        sync: false
+        sync: false                  # token gerado no painel do Turso
+
+      # ── Cloudinary (fotos dos produtos) ───────────────────────
       - key: CLOUDINARY_CLOUD_NAME
         sync: false
       - key: CLOUDINARY_API_KEY
         sync: false
       - key: CLOUDINARY_API_SECRET
         sync: false
-    # Sem "disk:" — banco no Turso, imagens no Cloudinary ✅
+
+      # ── Stripe (pagamentos) ────────────────────────────────────
+      - key: STRIPE_SECRET_KEY
+        sync: false                  # sk_live_... ou sk_test_...
+      - key: STRIPE_PUBLISHABLE_KEY
+        sync: false                  # pk_live_... (injetada no HTML pelo server)
+
+      # ── Gmail (confirmação de pedidos) ─────────────────────────
+      - key: EMAIL_USER
+        sync: false                  # seuemail@gmail.com
+      - key: EMAIL_PASS
+        sync: false                  # senha de app 16 chars (sem espaços)
+
+    # Sem "disk:" — banco no Turso, fotos no Cloudinary ✅

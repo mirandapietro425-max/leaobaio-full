@@ -10,9 +10,12 @@ const bodyParser = require('body-parser');
 const multer     = require('multer');
 const path       = require('path');
 const cloudinary = require('cloudinary').v2;
-const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY);
+const stripe = process.env.STRIPE_SECRET_KEY
+  ? require('stripe')(process.env.STRIPE_SECRET_KEY)
+  : null;
 const nodemailer = require('nodemailer');
 const { createClient } = require('@libsql/client');
+const fs = require('fs');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
@@ -153,7 +156,7 @@ async function initDB() {
 
   await q(`CREATE TABLE IF NOT EXISTS orders (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
-    payment_intent_id TEXT    NOT NULL,
+    payment_intent_id TEXT    NOT NULL UNIQUE,
     customer_name     TEXT    NOT NULL,
     customer_email    TEXT    NOT NULL,
     customer_phone    TEXT    DEFAULT '',
@@ -530,10 +533,19 @@ app.put('/api/admin/settings', requireAuth, async (req, res) => {
 // ════════════════════════════════════════════════════════════
 
 app.post('/api/checkout/create-payment-intent', async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Pagamentos não configurados. Entre em contato via WhatsApp.' });
   try {
     const { items, customer } = req.body;
     if (!items || !items.length) return res.status(400).json({ error: 'Carrinho vazio.' });
-    const total = items.reduce((s, i) => s + (i.price * i.qty), 0);
+
+    // ✅ Validação de preços no servidor — nunca confie no cliente
+    let total = 0;
+    for (const item of items) {
+      const dbProduct = await q1('SELECT price FROM products WHERE id=? AND active=1', [item.id]);
+      if (!dbProduct) return res.status(400).json({ error: `Produto #${item.id} não encontrado.` });
+      total += dbProduct.price * (item.qty || 1);
+    }
+
     const amountCents = Math.round(total * 100);
     if (amountCents < 50) return res.status(400).json({ error: 'Valor minimo: R$ 0,50' });
     const paymentIntent = await stripe.paymentIntents.create({
@@ -549,8 +561,13 @@ app.post('/api/checkout/create-payment-intent', async (req, res) => {
 });
 
 app.post('/api/checkout/confirm', async (req, res) => {
+  if (!stripe) return res.status(503).json({ error: 'Pagamentos não configurados.' });
   try {
     const { paymentIntentId, items, customer, total } = req.body;
+
+    // ✅ Evitar pedido duplicado
+    const existing = await q1('SELECT id FROM orders WHERE payment_intent_id=?', [paymentIntentId]);
+    if (existing) return res.json({ ok: true, orderId: Number(existing.id) });
     const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
     if (pi.status !== 'succeeded') return res.status(400).json({ error: 'Pagamento nao confirmado.' });
     const r = await q(
@@ -580,7 +597,6 @@ app.get('/api/admin/orders', requireAuth, async (req, res) => {
 // ════════════════════════════════════════════════════════════
 
 app.get('/', (req, res) => {
-  const fs = require('fs');
   try {
     let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
     html = html.replace('STRIPE_PUBLISHABLE_KEY_PLACEHOLDER', process.env.STRIPE_PUBLISHABLE_KEY || '');

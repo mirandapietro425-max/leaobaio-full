@@ -1,25 +1,41 @@
-# 🦁 Leão Baio — Loja + Painel Admin Completo
+# 🦁 Leão Baio — Loja + Painel Admin
 
-Sistema completo com backend Node.js + frontend da loja + painel administrativo.
-Banco de dados SQLite embutido, sem dependências externas.
+Backend Node.js com **Turso** (banco), **Cloudinary** (fotos), **Stripe** (pagamentos) e **Gmail** (e-mails de confirmação).
+Deploy no **Render Free** — sem disco necessário, dados persistem na nuvem.
 
 ---
 
-## 📁 Estrutura
+## 📁 Estrutura de Pastas
 
 ```
 leaobaio-full/
-├── server.js          # Backend Express + SQLite + API
-├── public/
-│   ├── index.html     # Frontend da loja (consome a API)
-│   └── admin.html     # Painel administrativo
-├── uploads/           # Fotos dos produtos (gerado automaticamente)
-├── db/
-│   └── leaobaio.db    # Banco de dados SQLite (gerado automaticamente)
-├── .env.example
-├── render.yaml        # Config de deploy no Render
-└── package.json
+├── server.js          ← backend principal (Express + todas as APIs)
+├── package.json       ← dependências
+├── render.yaml        ← config de deploy no Render
+├── .env.example       ← modelo das variáveis (copie para .env)
+├── .gitignore
+├── README.md
+└── public/
+    ├── index.html     ← frontend da loja
+    └── admin.html     ← painel administrativo
 ```
+
+> ✅ **Não existem mais as pastas `db/` e `uploads/`.**
+> O banco fica no Turso e as fotos no Cloudinary — ambos na nuvem, ambos gratuitos.
+
+---
+
+## 🔑 Serviços externos (todos gratuitos para começar)
+
+| Serviço | Para que serve | Obrigatório? |
+|---|---|---|
+| **Turso** | Banco SQLite na nuvem | ✅ Sim |
+| **Cloudinary** | Hospedagem das fotos | ✅ Sim |
+| **Render** | Servidor Node.js online | ✅ Sim |
+| **Stripe** | Pagamentos com cartão | ⚪ Opcional |
+| **Gmail** | E-mail de confirmação de pedido | ⚪ Opcional |
+
+> Sem Stripe e Gmail o site funciona normalmente — apenas o checkout e os e-mails ficam desativados.
 
 ---
 
@@ -29,105 +45,110 @@ leaobaio-full/
 # 1. Instalar dependências
 npm install
 
-# 2. Copiar .env
+# 2. Criar o .env com suas chaves reais
 cp .env.example .env
+# Abra o .env e preencha as variáveis do Turso e Cloudinary
 
 # 3. Rodar
-npm run dev        # com hot-reload (nodemon)
-# ou
-npm start          # produção
+npm run dev     # desenvolvimento (reinicia automaticamente)
+npm start       # produção
 ```
 
-Pronto! Acesse:
+Acesse:
 - **Loja:** http://localhost:3000
-- **Admin:** http://localhost:3000/admin
-- **Senha padrão:** `leaobaio123`
+- **Admin:** http://localhost:3000/admin — senha padrão: `leaobaio123`
 
 ---
 
-## 🌐 Deploy no Render (passo a passo)
+## 🌐 Deploy no Render
 
 ### 1. Subir para o GitHub
+
+Abra o terminal **dentro da pasta `leaobaio-full`** e execute:
+
 ```bash
 git init
 git add .
-git commit -m "feat: leao baio store completo"
-git remote add origin https://github.com/SEU_USER/leaobaio-full.git
+git commit -m "feat: leaobaio v2 turso cloudinary"
+git remote add origin https://github.com/SEU_USUARIO/leaobaio-full.git
+git branch -M main
 git push -u origin main
 ```
 
 ### 2. Criar Web Service no Render
+
 1. Acesse [render.com](https://render.com) → **New +** → **Web Service**
 2. Conecte o repositório GitHub
-3. Configurações:
-   - **Name:** `leaobaio-store`
-   - **Runtime:** `Node`
+3. Preencha:
+   - **Runtime:** Node
    - **Build Command:** `npm install`
    - **Start Command:** `npm start`
+   - **Plan:** Free
 
-### 3. Adicionar Disco (IMPORTANTE para persistência)
-No painel do serviço → **Disks** → **Add Disk**:
-- **Mount Path:** `/opt/render/project/src`
-- **Size:** 1 GB (plano gratuito suporta)
+> ✅ **Não adicione disco** — os dados ficam no Turso e Cloudinary.
 
-> ⚠️ **Sem o disco, os dados (banco e imagens) se perdem ao reiniciar!**
+### 3. Adicionar as variáveis de ambiente
 
-### 4. Variáveis de Ambiente
-No painel → **Environment** → adicione:
+Painel do serviço → **Environment** → adicione as 12 variáveis:
+
 ```
-SESSION_SECRET = qualquer_string_aleatoria_longa_aqui
-NODE_ENV       = production
+NODE_ENV                = production
+SESSION_SECRET          = qualquer_frase_longa_aleatoria
+TURSO_DATABASE_URL      = libsql://leaobaio-db-seuusuario.turso.io
+TURSO_AUTH_TOKEN        = eyJhbGci...
+CLOUDINARY_CLOUD_NAME   = dxxxxx
+CLOUDINARY_API_KEY      = 1234567890
+CLOUDINARY_API_SECRET   = abcDEF_xxxxx
+STRIPE_SECRET_KEY       = sk_live_...
+STRIPE_PUBLISHABLE_KEY  = pk_live_...
+EMAIL_USER              = seuemail@gmail.com
+EMAIL_PASS              = senha_app_16_chars
+PORT                    = 3000
 ```
 
-### 5. Deploy
-Clique em **Deploy** e aguarde ~2 minutos. Seu site estará em:
-`https://leaobaio-store.onrender.com`
+### 4. Deploy
+
+Clique em **Deploy** e aguarde ~2 minutos.
+Seu site estará em: `https://leaobaio-store.onrender.com`
 
 ---
 
-## 🔑 Painel Admin
+## 🔑 Painel Administrativo
 
-Acesse: `https://seu-site.onrender.com/admin`
+Acesse: `https://seu-app.onrender.com/admin`
 
-### O que você pode fazer:
-
-**📁 Categorias**
-- Criar categorias com nome e segmento (Masculino, Feminino, Acessórios, etc.)
-- Definir ordem de exibição
-- Excluir categorias (remove produtos junto)
-
-**👕 Produtos**
-- Criar produtos com: nome, descrição, preço, preço original (para % de desconto), badge
-- Selecionar ou criar tamanhos (P, M, G, GG, XGG... ou qualquer tamanho personalizado)
-- Ativar/desativar produto sem excluir
-- Ordem de exibição customizável
-
-**📸 Fotos**
-- Upload de fotos ilimitadas por produto
-- Suporte a arrastar e soltar
-- Visualização em grade
-- Exclusão individual de fotos
-- A primeira foto vira a capa do produto automaticamente
-
-**⚙️ Configurações**
-- Nome da loja
-- Barra de anúncio
-- Título e subtítulo da hero
-- WhatsApp e e-mail de contato
-- Valor mínimo para frete grátis
-- Alterar senha de acesso
+| Seção | Funcionalidade |
+|---|---|
+| **Dashboard** | Resumo — total de produtos, categorias e fotos |
+| **Produtos** | Criar, editar, ativar/desativar, tamanhos, badge, preço |
+| **Categorias** | Criar tipos de roupa por segmento (Masculino, Feminino...) |
+| **Fotos** | Upload ilimitado por produto, arrastar e soltar |
+| **Configurações** | Nome da loja, hero, contato, frete grátis, senha |
 
 ---
 
-## 🔧 Alterar Senha Padrão
+## 📦 Como atualizar o site depois de mudar o código
 
-**Opção 1** — Pelo painel admin:
-`Admin → Configurações → Segurança → Nova Senha`
-
-**Opção 2** — Direto no banco (SQLite):
 ```bash
-sqlite3 db/leaobaio.db "UPDATE settings SET value='sua_nova_senha' WHERE key='admin_password';"
+git add .
+git commit -m "update: descrição da mudança"
+git push
 ```
+O Render detecta o push e faz deploy automático em ~1 minuto.
+
+---
+
+## 🔧 Trocar a senha do admin
+
+**Pelo painel:** Admin → Configurações → Segurança → Nova Senha
+
+---
+
+## ⚠️ Plano gratuito do Render
+
+O servidor "dorme" após 15 min sem acesso — a primeira visita pode demorar ~30s.
+Para evitar isso, cadastre o site no [UptimeRobot](https://uptimerobot.com) (gratuito)
+para fazer um ping a cada 10 minutos.
 
 ---
 

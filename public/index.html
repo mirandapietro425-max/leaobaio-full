@@ -2077,8 +2077,10 @@ function closeCart() { document.getElementById('cartOverlay').classList.remove('
 // ══════════════════════════════════════════════
 //  FREE SHIPPING BAR
 // ══════════════════════════════════════════════
-const FREE_SHIPPING_THRESHOLD = 299;
+let FREE_SHIPPING_THRESHOLD = 299;
 function updateFreeShippingBar() {
+  const settings = storeData?.settings;
+  if (settings?.free_shipping_above) FREE_SHIPPING_THRESHOLD = parseFloat(settings.free_shipping_above) || 299;
   const total = getCartTotal();
   const remaining = FREE_SHIPPING_THRESHOLD - total;
   const pct = Math.min(100, (total / FREE_SHIPPING_THRESHOLD) * 100);
