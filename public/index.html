@@ -1695,6 +1695,26 @@ let cart        = JSON.parse(localStorage.getItem('lb_cart') || '[]');
 let currentFilter = 'all';
 let pendingProduct = null;
 
+// ── Sincronizar carrinho entre abas ──────────
+window.addEventListener('storage', (e) => {
+  if (e.key === 'lb_cart') {
+    cart = JSON.parse(e.newValue || '[]');
+    updateCartUI();
+    updateFreeShippingBar();
+  }
+});
+
+// ── Formatação de moeda centralizada ─────────
+function formatCurrency(value) {
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(value);
+}
+
+// ── Debounce utility ──────────────────────────
+function debounce(func, delay) {
+  let timeout;
+  return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => func(...args), delay); };
+}
+
 // ── Carregar dados da API ──────────────────────
 async function loadStore() {
   showSkeletons(8);
@@ -1851,7 +1871,7 @@ function renderProducts(filter) {
     const hasImgs = imgs.length > 0;
 
     const slidesHtml = hasImgs
-      ? imgs.map(img => `<div class="pc-slide"><img src="${img.filename}" alt="${p.name}" loading="lazy"></div>`).join('')
+      ? imgs.map(img => `<div class="pc-slide"><img src="${img.filename}" alt="${p.name}" loading="lazy" onerror="this.style.display='none';this.parentElement.innerHTML='<span class=\\"no-image\\">👕</span>'"></div>`).join('')
       : `<div class="pc-slide"><span class="no-image">👕</span></div>`;
 
     const dotsHtml = imgs.length > 1
@@ -2065,8 +2085,10 @@ function updateCartUI() {
 function changeQty(key, delta) {
   const item = cart.find(c => c._key === key);
   if (!item) return;
-  item.qty += delta;
-  if (item.qty <= 0) cart = cart.filter(c => c._key !== key);
+  const newQty = item.qty + delta;
+  if (newQty <= 0) { cart = cart.filter(c => c._key !== key); }
+  else if (newQty > 99) return;
+  else { item.qty = newQty; }
   saveCart(); updateCartUI(); updateFreeShippingBar();
 }
 
@@ -2122,6 +2144,16 @@ function initStripe() {
     },
   });
   cardElement.mount('#cardElement');
+
+  // Máscara de CEP
+  const cepInput = document.getElementById('coCep');
+  if (cepInput) {
+    cepInput.addEventListener('input', (e) => {
+      let v = e.target.value.replace(/\D/g, '');
+      if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 8);
+      e.target.value = v;
+    });
+  }
 }
 
 function checkout() {
@@ -2160,9 +2192,14 @@ async function submitPayment() {
   if (!name || !email || !address || !city || !cep) {
     errEl.textContent = 'Preencha todos os campos obrigatórios.'; return;
   }
-  if (!email.includes('@')) {
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) {
     errEl.textContent = 'E-mail inválido.'; return;
   }
+  const cepClean = cep.replace(/\D/g, '');
+  if (cepClean.length !== 8) {
+    errEl.textContent = 'CEP inválido. Digite os 8 dígitos.'; return;
+  }
+
   if (!stripe || !cardElement) {
     errEl.textContent = 'Sistema de pagamento não disponível. Entre em contato via WhatsApp.'; return;
   }
@@ -2171,12 +2208,21 @@ async function submitPayment() {
   btn.disabled = true; btn.textContent = '⏳ Processando...';
 
   try {
-    const r = await fetch('/api/checkout/create-payment-intent', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ items: cart, customer: { name, email, phone, address, city, cep } }),
-    });
-    const { clientSecret, error: serverError } = await r.json();
+    let serverData;
+    try {
+      const r = await fetch('/api/checkout/create-payment-intent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items: cart, customer: { name, email, phone, address, city, cep } }),
+      });
+      serverData = await r.json();
+    } catch (netErr) {
+      errEl.textContent = 'Sem conexão. Verifique sua internet e tente novamente.';
+      btn.disabled = false; btn.textContent = '🔒 Pagar com Segurança';
+      return;
+    }
+
+    const { clientSecret, error: serverError } = serverData;
     if (serverError) { errEl.textContent = serverError; btn.disabled = false; btn.textContent = '🔒 Pagar com Segurança'; return; }
 
     const { paymentIntent, error } = await stripe.confirmCardPayment(clientSecret, {
@@ -2339,6 +2385,16 @@ function closeQuickView(e) {
   document.body.style.overflow = '';
   qvProduct = null; qvSelectedSize = null;
 }
+
+// Suporte a touch para fechar QV em mobile
+document.addEventListener('DOMContentLoaded', () => {
+  const qvOverlay = document.getElementById('qvOverlay');
+  if (qvOverlay) {
+    qvOverlay.addEventListener('touchend', (e) => {
+      if (e.target === qvOverlay) { e.preventDefault(); closeQuickView(e); }
+    }, { passive: false });
+  }
+});
 
 // ══════════════════════════════════════════════
 //  PROVADOR VIRTUAL
