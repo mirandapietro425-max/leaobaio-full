@@ -925,33 +925,42 @@ footer::before{
 ══════════════════════════════════════════ */
 .size-helper-modal {
   position:fixed;inset:0;background:rgba(0,0,0,.88);
-  display:none;justify-content:center;align-items:center;z-index:4000;
+  display:none;justify-content:center;align-items:center;z-index:6000;
   backdrop-filter:blur(6px);
 }
 .size-helper-modal.open { display:flex }
 .size-helper-box {
-  background:var(--black-card);padding:52px 48px;
+  background:var(--white);
   border:1px solid var(--border-gold-bright);
   width:90%;max-width:480px;text-align:center;
   border-radius:var(--radius);animation:fadeInUp .3s ease;
   box-shadow:0 40px 100px rgba(0,0,0,.8),var(--shadow-gold);
+  overflow:hidden;
+}
+.size-helper-box-header {
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
+  padding:32px 48px 24px;
+}
+.size-helper-box-body {
+  background:var(--white);
+  padding:32px 48px 40px;
 }
 .size-helper-box h2 {
   font-family:var(--font-display);font-size:16px;letter-spacing:4px;
-  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+  color:var(--black-deep);text-transform:uppercase;margin-bottom:8px;
 }
 .size-helper-box .sh-subtitle {
-  font-size:12px;color:var(--text-muted);letter-spacing:1px;margin-bottom:32px;
+  font-size:12px;color:rgba(0,0,0,.55);letter-spacing:1px;margin-bottom:0;
 }
 .sh-inputs { display:flex;gap:14px;margin-bottom:20px }
 .sh-inputs input {
   flex:1;padding:14px 16px;
-  background:var(--black-mid);border:1px solid var(--border-gold);
-  color:var(--white);font-family:var(--font-body);font-size:13px;
+  background:#f8f6f0;border:1px solid var(--border-gold-bright);
+  color:var(--black-deep);font-family:var(--font-body);font-size:13px;
   border-radius:var(--radius);outline:none;transition:border-color .2s;
 }
 .sh-inputs input:focus { border-color:var(--gold) }
-.sh-inputs input::placeholder { color:var(--text-muted) }
+.sh-inputs input::placeholder { color:#aaa }
 .sh-calc-btn {
   width:100%;padding:15px;margin-bottom:20px;
   background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
@@ -963,66 +972,75 @@ footer::before{
 .sh-calc-btn:hover { filter:brightness(1.12);transform:translateY(-1px) }
 .sh-resultado {
   min-height:48px;padding:14px;
-  background:rgba(201,168,76,.07);border:1px solid var(--border-gold);
+  background:rgba(201,168,76,.08);border:1px solid var(--border-gold-bright);
   border-radius:var(--radius);margin-bottom:20px;
-  font-family:var(--font-display);font-size:13px;color:var(--gold);
+  font-family:var(--font-display);font-size:13px;color:var(--gold-dark);
   letter-spacing:1px;display:none;
 }
 .sh-resultado.visible { display:block }
 .sh-close {
-  background:transparent;border:1px solid var(--border-gold);
-  color:var(--text-muted);padding:10px 28px;cursor:pointer;
+  background:transparent;border:1px solid var(--border-gold-bright);
+  color:var(--gold-dark);padding:10px 28px;cursor:pointer;
   font-family:var(--font-display);font-size:9px;letter-spacing:3px;
   text-transform:uppercase;border-radius:var(--radius);transition:all .2s;
 }
-.sh-close:hover { border-color:var(--gold);color:var(--gold) }
+.sh-close:hover { background:var(--gold-dark);color:var(--white) }
 
 /* ══════════════════════════════════════════
    TABELA DE MEDIDAS
 ══════════════════════════════════════════ */
 .size-table-modal {
   position:fixed;inset:0;background:rgba(0,0,0,.88);
-  display:none;justify-content:center;align-items:center;z-index:4000;
+  display:none;justify-content:center;align-items:center;z-index:6000;
   backdrop-filter:blur(6px);
 }
 .size-table-modal.open { display:flex }
 .size-table-box {
-  background:var(--black-card);padding:48px;
+  background:var(--white);
   border:1px solid var(--border-gold-bright);
   width:90%;max-width:560px;text-align:center;
   border-radius:var(--radius);animation:fadeInUp .3s ease;
   box-shadow:0 40px 100px rgba(0,0,0,.8),var(--shadow-gold);
-  max-height:90vh;overflow-y:auto;
+  max-height:90vh;overflow-y:auto;overflow-x:hidden;
+}
+.size-table-box-header {
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
+  padding:32px 48px 24px;
+  position:sticky;top:0;z-index:1;
+}
+.size-table-box-body {
+  background:var(--white);
+  padding:32px 48px 40px;
 }
 .size-table-box h2 {
   font-family:var(--font-display);font-size:16px;letter-spacing:4px;
-  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+  color:var(--black-deep);text-transform:uppercase;margin-bottom:8px;
 }
 .size-table-box .st-subtitle {
-  font-size:12px;color:var(--text-muted);letter-spacing:1px;margin-bottom:28px;
+  font-size:12px;color:rgba(0,0,0,.55);letter-spacing:1px;margin-bottom:0;
 }
 .st-table {
   width:100%;border-collapse:collapse;margin-bottom:28px;
 }
 .st-table th {
   font-family:var(--font-display);font-size:9px;letter-spacing:3px;
-  color:var(--gold);text-transform:uppercase;padding:12px 16px;
-  border-bottom:1px solid var(--border-gold-bright);
-  background:rgba(201,168,76,.05);
+  color:var(--gold-dark);text-transform:uppercase;padding:12px 16px;
+  border-bottom:2px solid var(--gold);
+  background:rgba(201,168,76,.08);
 }
 .st-table td {
-  padding:12px 16px;font-size:13px;color:var(--text-light);
-  border-bottom:1px solid var(--border-gold);
+  padding:12px 16px;font-size:13px;color:#444;
+  border-bottom:1px solid rgba(201,168,76,.2);
 }
-.st-table tr:hover td { background:rgba(201,168,76,.04);color:var(--white) }
+.st-table tr:hover td { background:rgba(201,168,76,.06);color:var(--black-deep) }
 .st-table tr:last-child td { border-bottom:none }
 .st-close {
-  background:transparent;border:1px solid var(--border-gold);
-  color:var(--text-muted);padding:10px 28px;cursor:pointer;
+  background:transparent;border:1px solid var(--gold-dark);
+  color:var(--gold-dark);padding:10px 28px;cursor:pointer;
   font-family:var(--font-display);font-size:9px;letter-spacing:3px;
   text-transform:uppercase;border-radius:var(--radius);transition:all .2s;
 }
-.st-close:hover { border-color:var(--gold);color:var(--gold) }
+.st-close:hover { background:var(--gold-dark);color:var(--white) }
 
 /* Botões no Quick View */
 .qv-helper-btns {
@@ -1189,35 +1207,43 @@ footer::before{
 ══════════════════════════════════════════ */
 .vfit-modal {
   position:fixed;inset:0;background:rgba(0,0,0,.92);
-  display:none;justify-content:center;align-items:center;z-index:5500;
+  display:none;justify-content:center;align-items:center;z-index:6000;
   backdrop-filter:blur(14px);padding:20px;
 }
 .vfit-modal.open { display:flex }
 .vfit-box {
-  background:var(--black-card);border:1px solid var(--border-gold-bright);
-  width:90%;max-width:680px;padding:44px;
+  background:var(--white);border:1px solid var(--border-gold-bright);
+  width:90%;max-width:680px;
   border-radius:var(--radius);animation:fadeInUp .35s ease;
   box-shadow:0 40px 120px rgba(0,0,0,.9),var(--shadow-gold);
   text-align:center;position:relative;
-  max-height:90vh;overflow-y:auto;
+  max-height:90vh;overflow-y:auto;overflow-x:hidden;
+}
+.vfit-box-header {
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
+  padding:32px 44px 24px;position:sticky;top:0;z-index:1;
+}
+.vfit-box-body {
+  background:var(--white);
+  padding:32px 44px 40px;
 }
 .vfit-box h2 {
   font-family:var(--font-display);font-size:15px;letter-spacing:5px;
-  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+  color:var(--black-deep);text-transform:uppercase;margin-bottom:8px;
 }
 .vfit-subtitle {
-  font-size:12px;color:var(--text-muted);letter-spacing:1px;margin-bottom:28px;
+  font-size:12px;color:rgba(0,0,0,.5);letter-spacing:1px;margin-bottom:0;
 }
 .vfit-upload-area {
   border:2px dashed var(--border-gold-bright);padding:36px;
   border-radius:var(--radius);margin-bottom:24px;cursor:pointer;
-  transition:all .3s;position:relative;
+  transition:all .3s;position:relative;background:#fafaf8;
 }
-.vfit-upload-area:hover { border-color:var(--gold);background:rgba(201,168,76,.03) }
-.vfit-upload-icon { font-size:40px;margin-bottom:12px;display:block;opacity:.5 }
+.vfit-upload-area:hover { border-color:var(--gold);background:rgba(201,168,76,.04) }
+.vfit-upload-icon { font-size:40px;margin-bottom:12px;display:block;opacity:.6 }
 .vfit-upload-label {
   font-family:var(--font-display);font-size:9px;letter-spacing:3px;
-  color:var(--text-muted);text-transform:uppercase;cursor:pointer;
+  color:var(--gold-dark);text-transform:uppercase;cursor:pointer;
 }
 .vfit-upload-label input { display:none }
 .vfit-canvas-wrap {
@@ -1238,11 +1264,11 @@ footer::before{
 }
 .vfit-controls label {
   font-family:var(--font-display);font-size:9px;letter-spacing:3px;
-  color:var(--text-muted);text-transform:uppercase;
+  color:var(--gold-dark);text-transform:uppercase;
 }
 .vfit-slider {
   width:100%;max-width:320px;appearance:none;height:4px;
-  background:var(--border-gold);border-radius:2px;outline:none;
+  background:rgba(201,168,76,.3);border-radius:2px;outline:none;
 }
 .vfit-slider::-webkit-slider-thumb {
   appearance:none;width:18px;height:18px;border-radius:50%;
@@ -1600,89 +1626,100 @@ footer::before{
 <!-- MODAL: DESCUBRA SEU TAMANHO -->
 <div class="size-helper-modal" id="sizeHelperModal">
   <div class="size-helper-box">
-    <h2>Descubra seu Tamanho</h2>
-    <p class="sh-subtitle">Informe suas medidas para a recomendação ideal</p>
-    <div class="sh-inputs">
-      <input type="number" id="shAltura" placeholder="Altura (cm)" min="140" max="220">
-      <input type="number" id="shPeso" placeholder="Peso (kg)" min="40" max="200">
+    <div class="size-helper-box-header">
+      <h2>Descubra seu Tamanho</h2>
+      <p class="sh-subtitle">Informe suas medidas para a recomendação ideal</p>
     </div>
-    <button class="sh-calc-btn" onclick="calcularTamanho()">Calcular meu tamanho</button>
-    <div class="sh-resultado" id="shResultado"></div>
-    <button class="sh-close" onclick="closeSizeHelper()">Fechar</button>
+    <div class="size-helper-box-body">
+      <div class="sh-inputs">
+        <input type="number" id="shAltura" placeholder="Altura (cm)" min="140" max="220">
+        <input type="number" id="shPeso" placeholder="Peso (kg)" min="40" max="200">
+      </div>
+      <button class="sh-calc-btn" onclick="calcularTamanho()">Calcular meu tamanho</button>
+      <div class="sh-resultado" id="shResultado"></div>
+      <button class="sh-close" onclick="closeSizeHelper()">Fechar</button>
+    </div>
   </div>
 </div>
 
 <!-- MODAL: TABELA DE MEDIDAS (ESTILO RENNER) -->
 <div class="size-table-modal" id="sizeTableModal">
   <div class="size-table-box">
-    <h2>Tabela de Medidas</h2>
-    <p class="st-subtitle">Camisetas e Moletons — medidas em centímetros</p>
-    <table class="st-table">
-      <thead>
-        <tr>
-          <th>Tamanho</th>
-          <th>Largura</th>
-          <th>Comprimento</th>
-          <th>Manga</th>
-          <th>Peito</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr><td>PP</td><td>46 cm</td><td>66 cm</td><td>19 cm</td><td>88–92 cm</td></tr>
-        <tr><td>P</td><td>50 cm</td><td>69 cm</td><td>20 cm</td><td>92–96 cm</td></tr>
-        <tr><td>M</td><td>54 cm</td><td>72 cm</td><td>21 cm</td><td>96–100 cm</td></tr>
-        <tr><td>G</td><td>58 cm</td><td>75 cm</td><td>22 cm</td><td>100–106 cm</td></tr>
-        <tr><td>GG</td><td>62 cm</td><td>78 cm</td><td>23 cm</td><td>106–114 cm</td></tr>
-        <tr><td>XGG</td><td>66 cm</td><td>81 cm</td><td>24 cm</td><td>114–124 cm</td></tr>
-      </tbody>
-    </table>
-    <p class="st-subtitle" style="font-size:11px">⚠️ Medidas podem variar ±2cm conforme modelagem do produto</p>
-    <button class="st-close" onclick="closeSizeTable()">Fechar</button>
+    <div class="size-table-box-header">
+      <h2>Tabela de Medidas</h2>
+      <p class="st-subtitle">Camisetas e Moletons — medidas em centímetros</p>
+    </div>
+    <div class="size-table-box-body">
+      <table class="st-table">
+        <thead>
+          <tr>
+            <th>Tamanho</th>
+            <th>Largura</th>
+            <th>Comprimento</th>
+            <th>Manga</th>
+            <th>Peito</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>PP</td><td>46 cm</td><td>66 cm</td><td>19 cm</td><td>88–92 cm</td></tr>
+          <tr><td>P</td><td>50 cm</td><td>69 cm</td><td>20 cm</td><td>92–96 cm</td></tr>
+          <tr><td>M</td><td>54 cm</td><td>72 cm</td><td>21 cm</td><td>96–100 cm</td></tr>
+          <tr><td>G</td><td>58 cm</td><td>75 cm</td><td>22 cm</td><td>100–106 cm</td></tr>
+          <tr><td>GG</td><td>62 cm</td><td>78 cm</td><td>23 cm</td><td>106–114 cm</td></tr>
+          <tr><td>XGG</td><td>66 cm</td><td>81 cm</td><td>24 cm</td><td>114–124 cm</td></tr>
+        </tbody>
+      </table>
+      <p class="st-subtitle" style="font-size:11px;color:#888;margin-bottom:20px">⚠️ Medidas podem variar ±2cm conforme modelagem do produto</p>
+      <button class="st-close" onclick="closeSizeTable()">Fechar</button>
+    </div>
   </div>
 </div>
 
 <!-- MODAL: PROVADOR VIRTUAL -->
 <div class="vfit-modal" id="vfitModal">
   <div class="vfit-box">
-    <button class="qv-close" style="position:absolute;top:16px;right:16px" onclick="closeVirtualFit()">✕</button>
-    <h2>Provador Virtual</h2>
-    <p class="vfit-subtitle">Faça upload de uma foto sua e veja como a peça fica em você</p>
-
-    <div id="vfitUploadArea" class="vfit-upload-area">
-      <span class="vfit-upload-icon">📸</span>
-      <label class="vfit-upload-label">
-        Clique para enviar sua foto
-        <input type="file" id="vfitFileInput" accept="image/*" onchange="vfitLoadUserPhoto(event)">
-      </label>
-      <p style="font-size:11px;color:var(--text-muted);margin-top:8px">JPG, PNG ou WEBP · Máx. 10MB</p>
+    <div class="vfit-box-header">
+      <button class="qv-close" style="position:absolute;top:16px;right:16px;border-color:rgba(0,0,0,.2);color:var(--black-deep);background:rgba(255,255,255,.3)" onclick="closeVirtualFit()">✕</button>
+      <h2>Provador Virtual</h2>
+      <p class="vfit-subtitle">Faça upload de uma foto sua e veja como a peça fica em você</p>
     </div>
-
-    <div id="vfitPreviewWrap" style="display:none">
-      <div class="vfit-canvas-wrap" id="vfitCanvasWrap">
-        <img id="vfitUserImg" class="vfit-user-img" src="" alt="Sua foto">
-        <img id="vfitClothingOverlay" class="vfit-clothing-overlay" src="" alt="" style="opacity:0.82">
+    <div class="vfit-box-body">
+      <div id="vfitUploadArea" class="vfit-upload-area">
+        <span class="vfit-upload-icon">📸</span>
+        <label class="vfit-upload-label">
+          Clique para enviar sua foto
+          <input type="file" id="vfitFileInput" accept="image/*" onchange="vfitLoadUserPhoto(event)">
+        </label>
+        <p style="font-size:11px;color:#aaa;margin-top:8px">JPG, PNG ou WEBP · Máx. 10MB</p>
       </div>
 
-      <div class="vfit-controls">
-        <label>Opacidade da peça</label>
-        <input type="range" class="vfit-slider" id="vfitOpacitySlider"
-               min="0" max="100" value="82"
-               oninput="document.getElementById('vfitClothingOverlay').style.opacity = this.value/100">
-        <label>Tamanho da sobreposição</label>
-        <input type="range" class="vfit-slider" id="vfitSizeSlider"
-               min="40" max="100" value="70"
-               oninput="vfitAdjustSize(this.value)">
+      <div id="vfitPreviewWrap" style="display:none">
+        <div class="vfit-canvas-wrap" id="vfitCanvasWrap">
+          <img id="vfitUserImg" class="vfit-user-img" src="" alt="Sua foto">
+          <img id="vfitClothingOverlay" class="vfit-clothing-overlay" src="" alt="" style="opacity:0.82">
+        </div>
+
+        <div class="vfit-controls">
+          <label>Opacidade da peça</label>
+          <input type="range" class="vfit-slider" id="vfitOpacitySlider"
+                 min="0" max="100" value="82"
+                 oninput="document.getElementById('vfitClothingOverlay').style.opacity = this.value/100">
+          <label>Tamanho da sobreposição</label>
+          <input type="range" class="vfit-slider" id="vfitSizeSlider"
+                 min="40" max="100" value="70"
+                 oninput="vfitAdjustSize(this.value)">
+        </div>
+
+        <div class="vfit-btn-row">
+          <button class="vfit-btn primary" onclick="vfitReset()">📷 Trocar Foto</button>
+          <button class="vfit-btn secondary" onclick="closeVirtualFit()">Fechar</button>
+        </div>
       </div>
 
-      <div class="vfit-btn-row">
-        <button class="vfit-btn primary" onclick="vfitReset()">📷 Trocar Foto</button>
-        <button class="vfit-btn secondary" onclick="closeVirtualFit()">Fechar</button>
-      </div>
+      <p style="font-size:11px;color:#aaa;margin-top:16px;line-height:1.8">
+        🔒 Sua foto não é enviada para nenhum servidor — tudo acontece localmente no seu navegador.
+      </p>
     </div>
-
-    <p style="font-size:11px;color:var(--text-muted);margin-top:16px;line-height:1.8">
-      🔒 Sua foto não é enviada para nenhum servidor — tudo acontece localmente no seu navegador.
-    </p>
   </div>
 </div>
 
@@ -2412,11 +2449,16 @@ function openVirtualFit() {
     }
   }
   document.getElementById('vfitModal').classList.add('open');
+  document.body.style.overflow = 'hidden';
 }
 
 function closeVirtualFit() {
   document.getElementById('vfitModal').classList.remove('open');
-  if (!qvProduct) document.body.style.overflow = '';
+  // Só libera scroll se nenhum outro modal estiver aberto
+  const qvOpen       = document.getElementById('qvOverlay').classList.contains('open');
+  const helperOpen   = document.getElementById('sizeHelperModal').classList.contains('open');
+  const tableOpen    = document.getElementById('sizeTableModal').classList.contains('open');
+  if (!qvOpen && !helperOpen && !tableOpen) document.body.style.overflow = '';
 }
 
 function vfitLoadUserPhoto(event) {
@@ -2455,7 +2497,10 @@ function openSizeHelper() {
 }
 function closeSizeHelper() {
   document.getElementById('sizeHelperModal').classList.remove('open');
-  if (!document.getElementById('qvOverlay').classList.contains('open')) document.body.style.overflow = '';
+  const qvOpen     = document.getElementById('qvOverlay').classList.contains('open');
+  const tableOpen  = document.getElementById('sizeTableModal').classList.contains('open');
+  const vfitOpen   = document.getElementById('vfitModal').classList.contains('open');
+  if (!qvOpen && !tableOpen && !vfitOpen) document.body.style.overflow = '';
 }
 function calcularTamanho() {
   const altura = parseInt(document.getElementById('shAltura').value);
@@ -2503,7 +2548,10 @@ function openSizeTable() {
 }
 function closeSizeTable() {
   document.getElementById('sizeTableModal').classList.remove('open');
-  if (!document.getElementById('qvOverlay').classList.contains('open')) document.body.style.overflow = '';
+  const qvOpen     = document.getElementById('qvOverlay').classList.contains('open');
+  const helperOpen = document.getElementById('sizeHelperModal').classList.contains('open');
+  const vfitOpen   = document.getElementById('vfitModal').classList.contains('open');
+  if (!qvOpen && !helperOpen && !vfitOpen) document.body.style.overflow = '';
 }
 document.getElementById('sizeTableModal').addEventListener('click', function(e) {
   if (e.target === this) closeSizeTable();
