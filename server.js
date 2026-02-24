@@ -1121,8 +1121,7 @@ app.get('/api/admin/orders/export', requireAuth, async (req, res) => {
       o.status||'',
       o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '',
     ].join(';'));
-    const csv = [header.join(';'), ...rows].join('
-');
+    const csv = [header.join(';'), ...rows].join('\n');
     const filename = `pedidos-${new Date().toISOString().split('T')[0]}.csv`;
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
