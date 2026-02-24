@@ -84,27 +84,124 @@ function getMailTransporter() {
 async function sendOrderConfirmation(customer, items, total, orderId) {
   try {
     const transporter = getMailTransporter();
-    const itemsHtml = items.map(i =>
-      `<tr>
-        <td style="padding:8px;border-bottom:1px solid #333;color:#ccc">${i.name}${i.size ? ' - ' + i.size : ''} x${i.qty}</td>
-        <td style="padding:8px;border-bottom:1px solid #333;color:#D4AF37;text-align:right">R$ ${(i.price * i.qty).toFixed(2).replace('.', ',')}</td>
-      </tr>`
-    ).join('');
+    if (!transporter) return;
+    const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
+    const storeEmail = (await getSetting('email')) || process.env.EMAIL_USER || '';
+    const whatsapp   = (await getSetting('whatsapp')) || '';
+    const address    = `${customer.address || ''}, ${customer.city || ''} — CEP ${customer.cep || ''}`;
+
+    const itemsHtml = items.map(i => `
+      <tr>
+        <td style="padding:10px 8px;border-bottom:1px solid #1e1e1e">
+          <span style="color:#fff;font-size:13px">${i.name}</span>
+          ${i.size ? `<span style="color:#888;font-size:11px;margin-left:6px">(${i.size})</span>` : ''}
+          <span style="color:#555;font-size:11px;margin-left:4px">×${i.qty||1}</span>
+        </td>
+        <td style="padding:10px 8px;border-bottom:1px solid #1e1e1e;text-align:right;white-space:nowrap">
+          <span style="color:#D4AF37;font-weight:600">R$ ${((i.price||0)*(i.qty||1)).toFixed(2).replace('.',',')}</span>
+        </td>
+      </tr>`).join('');
+
+    const whatsappSection = whatsapp
+      ? `<div style="text-align:center;margin:28px 0 0">
+          <a href="https://wa.me/${whatsapp.replace(/\D/g,'')}" style="display:inline-block;background:transparent;color:#888;font-family:Arial,sans-serif;font-size:12px;text-decoration:none;border:1px solid #333;padding:10px 24px;border-radius:2px">
+            💬 Fale conosco no WhatsApp
+          </a>
+        </div>` : '';
+
     await transporter.sendMail({
-      from: `"Leao Baio Store" <${process.env.EMAIL_USER}>`,
-      to: customer.email,
-      subject: `Pedido #${orderId} Confirmado - Leao Baio`,
-      html: `<div style="background:#0A0A0A;color:#fff;font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:40px">
-        <h1 style="color:#D4AF37;text-align:center;letter-spacing:4px">LEAO BAIO</h1>
-        <h2 style="color:#D4AF37">Pedido #${orderId} Confirmado!</h2>
-        <p>Ola, ${customer.name}! Seu pedido foi confirmado com sucesso.</p>
-        <table style="width:100%;border-collapse:collapse">${itemsHtml}
-          <tr><td style="padding:12px 8px;color:#888">TOTAL</td>
-          <td style="padding:12px 8px;color:#D4AF37;font-size:18px;font-weight:bold;text-align:right">R$ ${total.toFixed(2).replace('.', ',')}</td></tr>
-        </table>
-        <p style="color:#ccc">Endereco: ${customer.address}, ${customer.city} - CEP ${customer.cep}</p>
-        <p style="color:#888;font-size:13px">Entraremos em contato pelo WhatsApp para confirmar o envio.</p>
-      </div>`,
+      from:    `"${storeName}" <${process.env.EMAIL_USER}>`,
+      to:      customer.email,
+      subject: `✅ Pedido #${orderId} confirmado — ${storeName}`,
+      html: `<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"></head>
+<body style="margin:0;padding:0;background:#080808;font-family:Georgia,serif">
+<table width="100%" cellpadding="0" cellspacing="0" style="background:#080808;padding:40px 20px">
+<tr><td align="center">
+<table width="100%" style="max-width:580px;background:#0F0F0F;border:1px solid rgba(212,175,55,.2)">
+
+  <!-- Header -->
+  <tr>
+    <td style="background:linear-gradient(135deg,#0A0A0A,#161616);padding:40px 48px;text-align:center;border-bottom:1px solid rgba(212,175,55,.3)">
+      <div style="font-family:Georgia,serif;font-size:11px;letter-spacing:8px;color:#888;text-transform:uppercase;margin-bottom:12px">moda casual</div>
+      <div style="font-family:Georgia,serif;font-size:28px;font-weight:700;letter-spacing:6px;color:#D4AF37;text-transform:uppercase">🦁 ${storeName.toUpperCase()}</div>
+      <div style="width:60px;height:1px;background:linear-gradient(90deg,transparent,#D4AF37,transparent);margin:16px auto 0"></div>
+    </td>
+  </tr>
+
+  <!-- Status badge -->
+  <tr>
+    <td style="padding:32px 48px 8px;text-align:center">
+      <div style="display:inline-block;background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#4CAF50;font-family:Arial,sans-serif;font-size:11px;letter-spacing:3px;text-transform:uppercase;padding:8px 24px;border-radius:2px">
+        ✓ Pedido Confirmado
+      </div>
+    </td>
+  </tr>
+
+  <!-- Greeting -->
+  <tr>
+    <td style="padding:24px 48px 8px">
+      <p style="margin:0;font-family:Georgia,serif;font-size:18px;color:#fff;font-weight:400">
+        Olá, <strong style="color:#D4AF37">${customer.name}</strong>
+      </p>
+      <p style="margin:12px 0 0;font-family:Arial,sans-serif;font-size:13px;color:#888;line-height:1.8">
+        Seu pedido <strong style="color:#D4AF37">#${orderId}</strong> foi confirmado e já está sendo preparado com cuidado.
+      </p>
+    </td>
+  </tr>
+
+  <!-- Order items -->
+  <tr>
+    <td style="padding:24px 48px">
+      <table width="100%" cellpadding="0" cellspacing="0" style="border-top:1px solid #1e1e1e">
+        <tr>
+          <td style="padding:10px 8px 6px;font-family:Arial,sans-serif;font-size:9px;letter-spacing:3px;color:#555;text-transform:uppercase">Produto</td>
+          <td style="padding:10px 8px 6px;font-family:Arial,sans-serif;font-size:9px;letter-spacing:3px;color:#555;text-transform:uppercase;text-align:right">Valor</td>
+        </tr>
+        ${itemsHtml}
+        <tr>
+          <td style="padding:16px 8px 0;font-family:Arial,sans-serif;font-size:10px;letter-spacing:2px;color:#555;text-transform:uppercase;border-top:1px solid #1e1e1e">Total</td>
+          <td style="padding:16px 8px 0;border-top:1px solid #1e1e1e;text-align:right">
+            <span style="font-family:Georgia,serif;font-size:24px;color:#D4AF37;font-weight:700">R$ ${total.toFixed(2).replace('.',',')}</span>
+          </td>
+        </tr>
+      </table>
+    </td>
+  </tr>
+
+  <!-- Delivery info -->
+  <tr>
+    <td style="padding:0 48px 32px">
+      <table width="100%" cellpadding="0" cellspacing="0" style="background:#111;border:1px solid #1e1e1e;padding:20px">
+        <tr>
+          <td>
+            <div style="font-family:Arial,sans-serif;font-size:9px;letter-spacing:3px;color:#555;text-transform:uppercase;margin-bottom:8px">Endereço de entrega</div>
+            <div style="font-family:Arial,sans-serif;font-size:13px;color:#ccc;line-height:1.6">${address}</div>
+          </td>
+        </tr>
+      </table>
+      ${whatsappSection}
+    </td>
+  </tr>
+
+  <!-- Footer -->
+  <tr>
+    <td style="background:#080808;border-top:1px solid #1e1e1e;padding:24px 48px;text-align:center">
+      <p style="margin:0 0 6px;font-family:Arial,sans-serif;font-size:11px;color:#555">
+        Dúvidas? <a href="mailto:${storeEmail}" style="color:#D4AF37;text-decoration:none">${storeEmail}</a>
+      </p>
+      <p style="margin:0;font-family:Arial,sans-serif;font-size:10px;color:#333;letter-spacing:1px">
+        © ${new Date().getFullYear()} ${storeName} — Todos os direitos reservados
+      </p>
+    </td>
+  </tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
     });
   } catch (e) {
     console.error('Email error:', e.message);
@@ -175,8 +272,10 @@ async function initDB() {
     `ALTER TABLE products ADD COLUMN length REAL DEFAULT NULL`,
     `ALTER TABLE products ADD COLUMN width  REAL DEFAULT NULL`,
     `ALTER TABLE products ADD COLUMN height REAL DEFAULT NULL`,
-    `ALTER TABLE orders   ADD COLUMN shipping_method TEXT DEFAULT ''`,
-    `ALTER TABLE orders   ADD COLUMN shipping_price  REAL DEFAULT 0`,
+    `ALTER TABLE orders   ADD COLUMN shipping_method  TEXT DEFAULT ''`,
+    `ALTER TABLE orders   ADD COLUMN shipping_price   REAL DEFAULT 0`,
+    `ALTER TABLE orders   ADD COLUMN tracking_code    TEXT DEFAULT ''`,
+    `ALTER TABLE orders   ADD COLUMN tracking_updated TEXT DEFAULT NULL`,
   ];
   for (const sql of migrations) {
     try { await q(sql); } catch (_) { /* coluna já existe, ignorar */ }
@@ -701,6 +800,58 @@ app.put('/api/admin/settings', requireAuth, async (req, res) => {
 });
 
 // ════════════════════════════════════════════════════════════
+//  E-MAIL: NOTIFICAÇÃO DE ENVIO
+// ════════════════════════════════════════════════════════════
+
+async function sendShippingNotification(order, items, trackingCode) {
+  if (!transporter) return;
+  const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
+  const storeEmail = (await getSetting('email')) || process.env.EMAIL_USER;
+  const trackUrl  = trackingCode
+    ? `https://rastreamento.correios.com.br/app/index.php?objetos=${trackingCode}`
+    : null;
+
+  const itemsHtml = items.map(i =>
+    `<tr>
+      <td style="padding:8px;border-bottom:1px solid #222;color:#fff">${i.name}${i.size ? ` (${i.size})` : ''}</td>
+      <td style="padding:8px;border-bottom:1px solid #222;color:#999;text-align:center">×${i.qty||1}</td>
+      <td style="padding:8px;border-bottom:1px solid #222;color:#D4AF37;text-align:right">R$ ${((i.price||0)*(i.qty||1)).toFixed(2).replace('.',',')}</td>
+    </tr>`
+  ).join('');
+
+  const trackSection = trackUrl
+    ? `<div style="text-align:center;margin:24px 0">
+        <a href="${trackUrl}" style="background:linear-gradient(135deg,#8A6A20,#E8C96A);color:#000;padding:14px 32px;text-decoration:none;font-weight:700;font-family:serif;letter-spacing:2px;font-size:12px;display:inline-block">
+          RASTREAR PEDIDO
+        </a>
+        <p style="color:#999;font-size:12px;margin-top:12px">Código: <strong style="color:#D4AF37">${trackingCode}</strong></p>
+      </div>`
+    : `<p style="color:#999;text-align:center;font-size:13px">O código de rastreio será disponibilizado em breve.</p>`;
+
+  await transporter.sendMail({
+    from:    `"${storeName}" <${process.env.EMAIL_USER}>`,
+    to:      order.customer_email,
+    subject: `📦 Seu pedido #${order.id} foi enviado! — ${storeName}`,
+    html: `
+<div style="background:#0A0A0A;color:#fff;font-family:Arial,sans-serif;max-width:600px;margin:0 auto;padding:0">
+  <div style="background:#111;border-bottom:1px solid #D4AF37;padding:32px;text-align:center">
+    <h1 style="font-family:Georgia,serif;color:#D4AF37;letter-spacing:4px;margin:0;font-size:22px">🦁 ${storeName}</h1>
+  </div>
+  <div style="padding:40px 32px">
+    <h2 style="color:#D4AF37;font-family:Georgia,serif;letter-spacing:2px;font-size:18px;margin:0 0 8px">Pedido enviado! 🚀</h2>
+    <p style="color:#ccc;margin:0 0 24px">Olá, <strong style="color:#fff">${order.customer_name}</strong>! Seu pedido <strong style="color:#D4AF37">#${order.id}</strong> saiu para entrega.</p>
+    ${trackSection}
+    <table style="width:100%;border-collapse:collapse;margin:24px 0">${itemsHtml}</table>
+    <p style="color:#999;font-size:12px;margin:24px 0 0">Endereço de entrega: <span style="color:#ccc">${order.customer_address}</span></p>
+  </div>
+  <div style="background:#111;border-top:1px solid #222;padding:24px;text-align:center">
+    <p style="color:#555;font-size:11px;margin:0">Dúvidas? Fale conosco: <a href="mailto:${storeEmail}" style="color:#D4AF37">${storeEmail}</a></p>
+  </div>
+</div>`,
+  });
+}
+
+// ════════════════════════════════════════════════════════════
 //  CHECKOUT - STRIPE
 // ════════════════════════════════════════════════════════════
 
@@ -776,6 +927,42 @@ app.get('/api/admin/orders', requireAuth, async (req, res) => {
     const orders = await qa('SELECT * FROM orders ORDER BY created_at DESC LIMIT 100');
     res.json(orders.map(o => ({ ...o, items: JSON.parse(o.items_json || '[]') })));
   } catch (e) { res.status(500).json({ error: 'Erro.' }); }
+});
+
+app.put('/api/admin/orders/:id', requireAuth, async (req, res) => {
+  const { status, tracking_code } = req.body;
+  const allowed = ['paid', 'preparing', 'shipped', 'delivered', 'cancelled'];
+  if (status && !allowed.includes(status))
+    return res.status(400).json({ error: 'Status inválido.' });
+  try {
+    const order = await q1('SELECT * FROM orders WHERE id=?', [req.params.id]);
+    if (!order) return res.status(404).json({ error: 'Pedido não encontrado.' });
+
+    const updates = {};
+    if (status)        updates.status = status;
+    if (tracking_code !== undefined) {
+      updates.tracking_code    = tracking_code;
+      updates.tracking_updated = new Date().toISOString();
+    }
+    if (!Object.keys(updates).length) return res.json({ ok: true });
+
+    const fields = Object.keys(updates).map(k => `${k}=?`).join(', ');
+    await q(`UPDATE orders SET ${fields} WHERE id=?`, [...Object.values(updates), req.params.id]);
+
+    // Disparar e-mail ao cliente quando pedido for marcado como enviado
+    if (status === 'shipped' && order.customer_email) {
+      const items = JSON.parse(order.items_json || '[]');
+      const trackCode = tracking_code || order.tracking_code || '';
+      await sendShippingNotification(order, items, trackCode).catch(e =>
+        console.error('[E-mail envio]', e.message)
+      );
+    }
+
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('Order update error:', e.message);
+    res.status(500).json({ error: 'Erro ao atualizar pedido.' });
+  }
 });
 
 // ════════════════════════════════════════════════════════════
@@ -883,6 +1070,105 @@ app.get('/produto/:id', async (req, res) => {
 
 app.get('/admin',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
+
+// ── robots.txt ──────────────────────────────────────────────
+app.get('/robots.txt', (req, res) => {
+  res.setHeader('Content-Type', 'text/plain');
+  res.send(`User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /api/
+
+Sitemap: ${SITE_URL}/sitemap.xml`);
+});
+
+// ── sitemap.xml ──────────────────────────────────────────────
+app.get('/sitemap.xml', async (req, res) => {
+  try {
+    const products = await qa('SELECT id, name, updated_at FROM products WHERE active=1');
+    const now = new Date().toISOString().split('T')[0];
+    const urls = [
+      `<url><loc>${SITE_URL}/</loc><changefreq>weekly</changefreq><priority>1.0</priority><lastmod>${now}</lastmod></url>`,
+      ...products.map(p =>
+        `<url><loc>${SITE_URL}/produto/${p.id}</loc><changefreq>weekly</changefreq><priority>0.8</priority><lastmod>${now}</lastmod></url>`
+      ),
+    ];
+    res.setHeader('Content-Type', 'application/xml');
+    res.send(`<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls.join('
+')}
+</urlset>`);
+  } catch (e) {
+    res.status(500).send('Erro ao gerar sitemap.');
+  }
+});
+
+// ── Exportar pedidos CSV ─────────────────────────────────────
+app.get('/api/admin/orders/export', requireAuth, async (req, res) => {
+  try {
+    const orders = await qa('SELECT * FROM orders ORDER BY created_at DESC');
+    const header = ['ID','Nome','Email','Telefone','Endereço','Total','Frete','Método Frete','Rastreio','Status','Data'];
+    const rows = orders.map(o => [
+      o.id,
+      `"${(o.customer_name||'').replace(/"/g,'""')}"`,
+      `"${(o.customer_email||'').replace(/"/g,'""')}"`,
+      `"${(o.customer_phone||'').replace(/"/g,'""')}"`,
+      `"${(o.customer_address||'').replace(/"/g,'""')}"`,
+      (o.total||0).toFixed(2).replace('.',','),
+      (o.shipping_price||0).toFixed(2).replace('.',','),
+      `"${(o.shipping_method||'').replace(/"/g,'""')}"`,
+      `"${(o.tracking_code||'').replace(/"/g,'""')}"`,
+      o.status||'',
+      o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '',
+    ].join(';'));
+    const csv = [header.join(';'), ...rows].join('
+');
+    const filename = `pedidos-${new Date().toISOString().split('T')[0]}.csv`;
+    res.setHeader('Content-Type', 'text/csv; charset=utf-8');
+    res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
+    res.send('﻿' + csv); // BOM para Excel abrir com acentos
+  } catch (e) {
+    res.status(500).json({ error: 'Erro ao exportar.' });
+  }
+});
+
+// ── Política de Privacidade ──────────────────────────────────
+app.get('/privacidade', async (req, res) => {
+  try {
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
+    const storeEmail = (await getSetting('email')) || '';
+    res.setHeader('Content-Type', 'text/html');
+    res.send(injectMeta(html, {
+      title: `Política de Privacidade — ${storeName}`,
+      description: `Saiba como a ${storeName} coleta, usa e protege seus dados pessoais, em conformidade com a LGPD.`,
+      canonical: `${SITE_URL}/privacidade`,
+      ogType: 'website',
+      schema: '{}',
+    }));
+  } catch (e) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
+
+// ── Termos de Uso ────────────────────────────────────────────
+app.get('/termos', async (req, res) => {
+  try {
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
+    res.setHeader('Content-Type', 'text/html');
+    res.send(injectMeta(html, {
+      title: `Termos de Uso — ${storeName}`,
+      description: `Leia os termos e condições de uso da ${storeName} antes de realizar sua compra.`,
+      canonical: `${SITE_URL}/termos`,
+      ogType: 'website',
+      schema: '{}',
+    }));
+  } catch (e) {
+    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+  }
+});
 
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
 

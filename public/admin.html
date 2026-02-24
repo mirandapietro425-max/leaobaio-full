@@ -25,7 +25,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--black);color
 /* ── LOGIN ── */
 #loginScreen{position:fixed;inset:0;background:var(--black);z-index:9999;
   display:flex;align-items:center;justify-content:center}
-.login-box{background:var(--black-card);border:1px solid var(--border-gold);padding:48px;width:380px;text-align:center}
+.login-box{background:var(--black-card);border:1px solid var(--border-gold);padding:40px 32px;width:min(380px,calc(100vw - 32px));text-align:center}
 .login-logo{font-family:var(--font-display);font-size:28px;color:var(--gold);letter-spacing:4px;margin-bottom:8px}
 .login-sub{color:var(--text-muted);font-size:12px;letter-spacing:3px;text-transform:uppercase;margin-bottom:36px}
 .login-box input{width:100%;background:var(--black-mid);border:1px solid var(--border-gold);color:var(--white);
@@ -102,7 +102,7 @@ html,body{height:100%;font-family:var(--font-body);background:var(--black);color
 .stat-card .lbl{font-size:11px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-top:4px}
 
 /* TABLE */
-.table-wrap{overflow-x:auto}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
 table{width:100%;border-collapse:collapse}
 th{font-family:var(--font-display);font-size:10px;letter-spacing:2px;color:var(--gold);
   text-transform:uppercase;text-align:left;padding:12px 16px;border-bottom:1px solid var(--border-gold);white-space:nowrap}
@@ -143,10 +143,10 @@ tr:hover td{background:var(--black-hover)}
 
 /* MODAL */
 .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:5000;
-  display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  display:none;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto}
 .modal-backdrop.open{display:flex}
 .modal{background:var(--black-card);border:1px solid var(--border-gold);
-  width:100%;max-width:780px;padding:36px;position:relative;animation:fadeIn .3s ease}
+  width:100%;max-width:780px;padding:36px;position:relative;animation:fadeIn .3s ease;box-sizing:border-box}
 .modal-close{position:absolute;top:16px;right:16px;background:none;border:1px solid var(--border);
   color:var(--text-muted);width:32px;height:32px;cursor:pointer;font-size:16px;transition:all .2s}
 .modal-close:hover{border-color:var(--red);color:var(--red)}
@@ -201,23 +201,88 @@ tr:hover td{background:var(--black-hover)}
 .empty-box .icon{font-size:48px;display:block;margin-bottom:16px;opacity:.3}
 .empty-box p{font-family:var(--font-display);font-size:13px;letter-spacing:2px;text-transform:uppercase}
 
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;margin-right:8px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--gold);border-radius:2px;transition:all .3s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999}
+
+/* Order modal overlay */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:5000;cursor:pointer}
+.modal-wrap{position:fixed;inset:0;z-index:5001;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;overflow-y:auto;pointer-events:none}
+.modal-wrap .modal{pointer-events:all;animation:fadeIn .25s ease}
+
 @media(max-width:768px){
-  .sidebar{width:200px}.form-grid{grid-template-columns:1fr}
+  .sidebar{width:200px}
+  .form-grid{grid-template-columns:1fr}
   .form-grid.cols3{grid-template-columns:1fr 1fr}
   .stat-cards{grid-template-columns:1fr 1fr}
   .main{padding:20px}
+  .modal{padding:24px}
+  .modal-backdrop{padding:20px 16px}
 }
 @media(max-width:600px){
   .sidebar{display:none}
   .topbar-brand{font-size:13px}
-  .page-header{flex-direction:column;align-items:flex-start}
+  .topbar-right a{display:none}
+  .page-header{flex-direction:column;align-items:flex-start;gap:12px}
+  .page-header .page-title{font-size:18px}
   .hamburger{display:flex!important}
   .sidebar.mobile-open{display:flex;position:fixed;top:0;left:0;height:100vh;z-index:1000;width:240px}
   .sidebar-overlay{display:block!important}
+  .main{padding:16px}
+  .stat-cards{grid-template-columns:1fr 1fr}
+  .stat-card{padding:16px}
+  .stat-card .num{font-size:24px}
+  .form-grid{grid-template-columns:1fr}
+  .form-grid.cols3{grid-template-columns:1fr}
+  .modal{padding:20px}
+  .modal-backdrop{padding:12px}
+  .modal h2{font-size:14px;margin-bottom:20px}
+  td{padding:10px 12px;font-size:12px}
+  th{padding:10px 12px;font-size:9px}
+  .td-actions{flex-wrap:wrap;gap:6px}
+  .btn-sm{padding:5px 10px;font-size:9px}
+  .custom-size-row{flex-wrap:wrap}
+  .custom-size-row input{min-width:0;flex:1}
+  .status-opt{padding:9px 14px;min-height:40px}
+  .tracking-row{flex-wrap:wrap}
+  .tracking-row input{width:100%}
+  .order-detail-grid{grid-template-columns:1fr}
+  .modal-wrap{padding:12px 8px}
+  .card{padding:16px}
+  .card-title{font-size:11px}
+  table th:nth-child(4),
+  table td:nth-child(4){display:none}
 }
-.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;margin-right:8px}
-.hamburger span{display:block;width:22px;height:2px;background:var(--gold);border-radius:2px;transition:all .3s}
-.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999}
+@media(max-width:400px){
+  .stat-cards{grid-template-columns:1fr}
+  .topbar-brand{font-size:11px;letter-spacing:1px}
+  .status-selector{gap:6px}
+  .status-opt{padding:8px 10px;font-size:9px;letter-spacing:0}
+}
+
+/* ── Status badges ─────────────────────────── */
+.status-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;font-family:var(--font-display);text-transform:uppercase}
+.status-paid      {background:rgba(76,175,80,.15);color:#4CAF50;border:1px solid rgba(76,175,80,.3)}
+.status-preparing {background:rgba(255,179,0,.15);color:#FFB300;border:1px solid rgba(255,179,0,.3)}
+.status-shipped   {background:rgba(33,150,243,.15);color:#42A5F5;border:1px solid rgba(33,150,243,.3)}
+.status-delivered {background:rgba(201,168,76,.15);color:var(--gold);border:1px solid rgba(201,168,76,.3)}
+.status-cancelled {background:rgba(244,67,54,.15);color:#EF5350;border:1px solid rgba(244,67,54,.3)}
+.order-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:20px}
+.order-detail-box{background:var(--black-mid);border:1px solid var(--border-gold);padding:14px 16px;border-radius:4px}
+.order-detail-box .obox-label{font-size:9px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:4px;font-family:var(--font-display)}
+.order-detail-box .obox-value{font-size:13px;color:var(--white);line-height:1.5;word-break:break-all}
+.status-selector{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}
+.status-opt{padding:7px 14px;border-radius:20px;font-size:10px;font-weight:700;letter-spacing:1px;font-family:var(--font-display);text-transform:uppercase;cursor:pointer;border:1px solid var(--border-gold);background:transparent;color:var(--text-muted);transition:all .2s}
+.status-opt:hover,.status-opt.active{border-color:var(--gold);color:var(--gold);background:rgba(201,168,76,.1)}
+.tracking-row{display:flex;gap:10px;align-items:center;margin-top:8px}
+.tracking-row input{flex:1;background:var(--black-mid);border:1px solid var(--border-gold);color:var(--white);padding:10px 14px;font-size:13px;outline:none;border-radius:4px}
+.tracking-row input:focus{border-color:var(--gold)}
+.order-items-mini{margin-top:16px;border-top:1px solid var(--border-gold);padding-top:14px}
+.order-items-mini .item-row{display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid rgba(255,255,255,.04);font-size:12px}
+.order-items-mini .item-row .iname{color:var(--text-light)}
+.order-items-mini .item-row .iprice{color:var(--gold)}
+@media(max-width:600px){.order-detail-grid{grid-template-columns:1fr}}
+
 </style>
 </head>
 <body>
@@ -362,6 +427,7 @@ tr:hover td{background:var(--black-hover)}
         <div class="page-header">
           <div><div class="page-title">Pedidos</div><div class="page-subtitle">Histórico de compras recebidas</div></div>
           <button class="btn btn-outline" onclick="loadOrders()">↻ Atualizar</button>
+          <a href="/api/admin/orders/export" class="btn btn-outline" style="text-decoration:none" download>↓ Exportar CSV</a>
         </div>
         <div class="card">
           <div class="card-title">Pedidos Recentes</div>
@@ -434,7 +500,7 @@ tr:hover td{background:var(--black-hover)}
 
 <!-- MODAL: CATEGORIA -->
 <div class="modal-backdrop" id="catModal">
-  <div class="modal" style="max-width:480px">
+  <div class="modal" style="max-width:min(480px,100%)">
     <button class="modal-close" onclick="closeCatModal()">✕</button>
     <h2 id="catModalTitle">Nova Categoria</h2>
     <input type="hidden" id="catId">
@@ -956,12 +1022,24 @@ async function saveSettings(e) {
 // ══════════════════════════════════════════════
 //  PEDIDOS
 // ══════════════════════════════════════════════
+const STATUS_LABELS = {
+  paid:      '💳 Pago',
+  preparing: '📦 Separando',
+  shipped:   '🚚 Enviado',
+  delivered: '✅ Entregue',
+  cancelled: '✕ Cancelado',
+};
+
+function statusBadge(status) {
+  return `<span class="status-badge status-${status||'paid'}">${STATUS_LABELS[status] || status || 'pago'}</span>`;
+}
+
 async function loadOrders() {
   const el = document.getElementById('ordersContent');
-  el.innerHTML = '<div class="loading-spinner-sm">⏳ Carregando pedidos...</div>';
+  el.innerHTML = '<div style="color:var(--text-muted);text-align:center;padding:40px">Carregando pedidos...</div>';
   try {
     const r = await fetch('/api/admin/orders');
-    if (!r.ok) throw new Error('API não disponível');
+    if (!r.ok) throw new Error();
     const orders = await r.json();
     if (!orders.length) {
       el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:40px">Nenhum pedido ainda.</p>';
@@ -969,26 +1047,93 @@ async function loadOrders() {
     }
     el.innerHTML = `<div class="table-wrap"><table>
       <thead><tr>
-        <th>#</th><th>Cliente</th><th>E-mail</th><th>Total</th>
-        <th>Frete</th><th>Status</th><th>Data</th>
+        <th>#</th><th>Cliente</th><th>Total</th>
+        <th>Rastreio</th><th>Status</th><th>Data</th><th></th>
       </tr></thead>
       <tbody>${orders.map(o => `
         <tr>
-          <td style="color:var(--gold)">#${o.id}</td>
-          <td>${o.customer_name || '—'}</td>
-          <td>${o.customer_email || '—'}</td>
-          <td style="color:var(--gold)">R$ ${(o.total||0).toFixed(2).replace('.',',')}</td>
-          <td>${o.shipping_method || '—'} ${o.shipping_price ? `R$ ${o.shipping_price.toFixed(2).replace('.',',')}` : ''}</td>
-          <td><span style="color:${o.status==='paid'?'#4CAF50':'#FFB300'}">${o.status||'pendente'}</span></td>
+          <td style="color:var(--gold);font-weight:700">#${o.id}</td>
+          <td>
+            <div style="font-weight:600;color:var(--white)">${o.customer_name||'—'}</div>
+            <div style="font-size:11px;color:var(--text-muted)">${o.customer_email||''}</div>
+          </td>
+          <td style="color:var(--gold);font-weight:700">R$ ${(o.total||0).toFixed(2).replace('.',',')}</td>
+          <td style="font-size:11px;color:var(--text-muted)">${o.tracking_code||'—'}</td>
+          <td>${statusBadge(o.status)}</td>
           <td style="color:var(--text-muted);font-size:11px">${o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '—'}</td>
+          <td><button class="btn btn-outline btn-sm" onclick='openOrderModal(${JSON.stringify(o)})'>Gerenciar</button></td>
         </tr>`).join('')}
       </tbody></table></div>`;
   } catch(e) {
-    el.innerHTML = `<p style="color:var(--text-muted);text-align:center;padding:40px">
-      API de pedidos ainda não implementada no server.js.<br>
-      <small>Adicione GET /api/admin/orders para listar pedidos.</small>
-    </p>`;
+    el.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:40px">Erro ao carregar pedidos.</p>';
   }
+}
+
+let _orderModalStatus = null;
+
+function openOrderModal(o) {
+  document.getElementById('orderModalId').value    = o.id;
+  document.getElementById('orderModalTitle').textContent = `Pedido #${o.id}`;
+  document.getElementById('omName').textContent    = o.customer_name    || '—';
+  document.getElementById('omEmail').textContent   = o.customer_email   || '—';
+  document.getElementById('omPhone').textContent   = o.customer_phone   || '—';
+  document.getElementById('omAddress').textContent = o.customer_address || '—';
+  document.getElementById('omTotal').textContent   = `R$ ${(o.total||0).toFixed(2).replace('.',',')}`;
+  document.getElementById('omTracking').value      = o.tracking_code    || '';
+  _orderModalStatus = o.status || 'paid';
+  document.querySelectorAll('.status-opt').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.status === _orderModalStatus);
+  });
+  const link = document.getElementById('omTrackLink');
+  if (o.tracking_code) {
+    link.href = `https://rastreamento.correios.com.br/app/index.php?objetos=${o.tracking_code}`;
+    link.style.display = 'inline-flex';
+  } else { link.style.display = 'none'; }
+  const items = o.items || [];
+  document.getElementById('omItems').innerHTML = items.length ? `
+    <div style="font-size:9px;letter-spacing:2px;color:var(--text-muted);text-transform:uppercase;margin-bottom:8px;font-family:var(--font-display)">Itens do Pedido</div>
+    ${items.map(i => `
+      <div class="item-row">
+        <span class="iname">${i.name}${i.size ? ` <span style="color:var(--text-muted)">(${i.size})</span>` : ''} x${i.qty||1}</span>
+        <span class="iprice">R$ ${((i.price||0)*(i.qty||1)).toFixed(2).replace('.',',')}</span>
+      </div>`).join('')}` : '';
+  document.getElementById('orderModalWrap').style.display = 'flex';
+  document.getElementById('orderModalOverlay').style.display = 'block';
+  document.body.style.overflow = 'hidden';
+}
+
+function selectOrderStatus(status) {
+  _orderModalStatus = status;
+  document.querySelectorAll('.status-opt').forEach(btn =>
+    btn.classList.toggle('active', btn.dataset.status === status)
+  );
+}
+
+function closeOrderModal() {
+  document.getElementById('orderModalWrap').style.display = 'none';
+  document.getElementById('orderModalOverlay').style.display = 'none';
+  document.body.style.overflow = '';
+}
+
+async function saveOrderStatus() {
+  const id       = document.getElementById('orderModalId').value;
+  const tracking = document.getElementById('omTracking').value.trim();
+  loading(true);
+  try {
+    const r = await fetch(`/api/admin/orders/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ status: _orderModalStatus, tracking_code: tracking }),
+    });
+    if (!r.ok) throw new Error();
+    showToast(
+      _orderModalStatus === 'shipped' ? '🚚 Status atualizado — e-mail enviado ao cliente!' : '✅ Pedido atualizado!',
+      'success'
+    );
+    closeOrderModal();
+    await loadOrders();
+  } catch { showToast('Erro ao atualizar pedido', 'error'); }
+  loading(false);
 }
 
 // ══════════════════════════════════════════════
@@ -997,5 +1142,45 @@ async function loadOrders() {
 checkAuth();
 document.getElementById('loginPass').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
 </script>
+<!-- Order Modal -->
+<div class="modal-overlay" id="orderModalOverlay" onclick="closeOrderModal()" style="display:none"></div>
+<div class="modal-wrap" id="orderModalWrap" style="display:none">
+  <div class="modal" style="max-width:min(560px,100%)">
+    <button class="modal-close" onclick="closeOrderModal()">&#x2715;</button>
+    <div class="modal-title" id="orderModalTitle">Pedido</div>
+    <input type="hidden" id="orderModalId">
+    <div class="order-detail-grid">
+      <div class="order-detail-box"><div class="obox-label">Cliente</div><div class="obox-value" id="omName"></div></div>
+      <div class="order-detail-box"><div class="obox-label">E-mail</div><div class="obox-value" id="omEmail"></div></div>
+      <div class="order-detail-box"><div class="obox-label">Telefone</div><div class="obox-value" id="omPhone"></div></div>
+      <div class="order-detail-box"><div class="obox-label">Total</div><div class="obox-value" id="omTotal" style="color:var(--gold);font-weight:700"></div></div>
+      <div class="order-detail-box" style="grid-column:1/-1"><div class="obox-label">Endereço</div><div class="obox-value" id="omAddress"></div></div>
+    </div>
+    <div class="field">
+      <label style="color:var(--gold);font-size:10px;letter-spacing:2px">STATUS DO PEDIDO</label>
+      <div class="status-selector">
+        <button class="status-opt" data-status="paid"      onclick="selectOrderStatus('paid')">&#x1F4B3; Pago</button>
+        <button class="status-opt" data-status="preparing" onclick="selectOrderStatus('preparing')">&#x1F4E6; Separando</button>
+        <button class="status-opt" data-status="shipped"   onclick="selectOrderStatus('shipped')">&#x1F69A; Enviado</button>
+        <button class="status-opt" data-status="delivered" onclick="selectOrderStatus('delivered')">&#x2705; Entregue</button>
+        <button class="status-opt" data-status="cancelled" onclick="selectOrderStatus('cancelled')">&#x2715; Cancelado</button>
+      </div>
+    </div>
+    <div class="field">
+      <label>Código de Rastreio (Correios)</label>
+      <div class="tracking-row">
+        <input id="omTracking" placeholder="Ex: BR123456789BR" maxlength="50">
+        <a id="omTrackLink" href="#" target="_blank" class="btn btn-outline btn-sm" style="white-space:nowrap;display:none">Rastrear &#x2197;</a>
+      </div>
+      <span class="hint">Ao salvar com status "Enviado", o cliente recebe e-mail com o código automaticamente.</span>
+    </div>
+    <div class="order-items-mini" id="omItems"></div>
+    <div style="display:flex;justify-content:flex-end;gap:10px;margin-top:20px">
+      <button class="btn btn-outline" onclick="closeOrderModal()">Cancelar</button>
+      <button class="btn btn-gold" onclick="saveOrderStatus()">Salvar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
