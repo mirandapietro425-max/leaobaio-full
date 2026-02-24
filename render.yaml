@@ -33,6 +33,8 @@ services:
         sync: false                  # sk_live_... ou sk_test_...
       - key: STRIPE_PUBLISHABLE_KEY
         sync: false                  # pk_live_... (injetada no HTML pelo server)
+      - key: STRIPE_WEBHOOK_SECRET
+        sync: false                  # whsec_... (Stripe Dashboard → Webhooks)
 
       # ── Gmail (confirmação de pedidos) ─────────────────────────
       - key: EMAIL_USER

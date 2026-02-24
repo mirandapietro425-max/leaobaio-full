@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const multer     = require('multer');
 const path       = require('path');
 const cloudinary = require('cloudinary').v2;
+const bcrypt     = require('bcryptjs');
+const rateLimit  = require('express-rate-limit');
 const stripe = process.env.STRIPE_SECRET_KEY
   ? require('stripe')(process.env.STRIPE_SECRET_KEY)
   : null;
@@ -167,6 +169,26 @@ async function initDB() {
     created_at        TEXT    DEFAULT (datetime('now'))
   )`);
 
+  // Migrações: adicionar colunas novas sem quebrar bancos já existentes
+  const migrations = [
+    `ALTER TABLE products ADD COLUMN weight REAL DEFAULT NULL`,
+    `ALTER TABLE products ADD COLUMN length REAL DEFAULT NULL`,
+    `ALTER TABLE products ADD COLUMN width  REAL DEFAULT NULL`,
+    `ALTER TABLE products ADD COLUMN height REAL DEFAULT NULL`,
+    `ALTER TABLE orders   ADD COLUMN shipping_method TEXT DEFAULT ''`,
+    `ALTER TABLE orders   ADD COLUMN shipping_price  REAL DEFAULT 0`,
+  ];
+  for (const sql of migrations) {
+    try { await q(sql); } catch (_) { /* coluna já existe, ignorar */ }
+  }
+
+  // Tabela de sessões persistentes
+  await q(`CREATE TABLE IF NOT EXISTS sessions (
+    sid     TEXT PRIMARY KEY,
+    sess    TEXT NOT NULL,
+    expired INTEGER NOT NULL
+  )`);
+
   // Configurações padrão (só insere se não existir)
   const defaults = {
     admin_password:      'leaobaio123',
@@ -215,15 +237,132 @@ async function initDB() {
     }
   }
 
+  // Migrar senha plain-text para bcrypt (executa uma vez)
+  const storedPwd = await getSetting('admin_password');
+  if (storedPwd && !storedPwd.startsWith('$2')) {
+    const hashed = await bcrypt.hash(storedPwd, 12);
+    await q("UPDATE settings SET value=? WHERE key='admin_password'", [hashed]);
+  }
+
   console.log('  ✅  Banco Turso pronto');
 }
 
 // ── Middlewares ──────────────────────────────────────────────
+// IMPORTANTE: webhook Stripe precisa do body cru — registrar ANTES do bodyParser
+app.post('/api/webhooks/stripe',
+  express.raw({ type: 'application/json' }),
+  async (req, res) => {
+    const sig    = req.headers['stripe-signature'];
+    const secret = process.env.STRIPE_WEBHOOK_SECRET;
+
+    if (!stripe)  return res.sendStatus(503);
+    if (!secret) {
+      console.warn('[Webhook] STRIPE_WEBHOOK_SECRET não definido — ignorando evento.');
+      return res.sendStatus(200);
+    }
+
+    let event;
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, secret);
+    } catch (err) {
+      console.error('[Webhook] Assinatura inválida:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
+    if (event.type === 'payment_intent.succeeded') {
+      const pi = event.data.object;
+      try {
+        // Evitar duplicata
+        const existing = await q1('SELECT id FROM orders WHERE payment_intent_id=?', [pi.id]);
+        if (!existing) {
+          const meta = pi.metadata || {};
+          const items = meta.items_json ? JSON.parse(meta.items_json) : [];
+          const total = (pi.amount / 100);
+          const r = await q(
+            `INSERT INTO orders
+               (payment_intent_id,customer_name,customer_email,customer_phone,
+                customer_address,items_json,total,status,shipping_method,shipping_price)
+             VALUES (?,?,?,?,?,?,?,?,?,?)`,
+            [
+              pi.id,
+              meta.customer_name    || '',
+              meta.customer_email   || '',
+              meta.customer_phone   || '',
+              meta.customer_address || '',
+              JSON.stringify(items),
+              total,
+              'paid',
+              meta.shipping_method  || '',
+              parseFloat(meta.shipping_price) || 0,
+            ]
+          );
+          const orderId = Number(r.lastInsertRowid);
+          // Enviar e-mail de confirmação
+          if (meta.customer_email) {
+            const customer = {
+              name:    meta.customer_name,
+              email:   meta.customer_email,
+              phone:   meta.customer_phone,
+              address: meta.customer_address,
+            };
+            await sendOrderConfirmation(customer, items, total, orderId).catch(e =>
+              console.error('[Webhook] Erro ao enviar e-mail:', e.message)
+            );
+          }
+          console.log(`[Webhook] Pedido #${orderId} criado via webhook.`);
+        }
+      } catch (e) {
+        console.error('[Webhook] Erro ao criar pedido:', e.message);
+        return res.sendStatus(500);
+      }
+    }
+
+    res.sendStatus(200);
+  }
+);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use('/public', express.static('public'));
+// ── Turso Session Store ──────────────────────────────────────
+const Store = session.Store;
+class TursoSessionStore extends Store {
+  async get(sid, cb) {
+    try {
+      const row = await q1('SELECT sess, expired FROM sessions WHERE sid=?', [sid]);
+      if (!row) return cb(null, null);
+      if (Date.now() > row.expired) {
+        await q('DELETE FROM sessions WHERE sid=?', [sid]);
+        return cb(null, null);
+      }
+      cb(null, JSON.parse(row.sess));
+    } catch (e) { cb(e); }
+  }
+  async set(sid, sess, cb) {
+    try {
+      const ttl     = sess.cookie?.maxAge || 86400000;
+      const expired = Date.now() + ttl;
+      await q(
+        `INSERT INTO sessions(sid,sess,expired) VALUES(?,?,?)
+         ON CONFLICT(sid) DO UPDATE SET sess=excluded.sess, expired=excluded.expired`,
+        [sid, JSON.stringify(sess), expired]
+      );
+      cb(null);
+    } catch (e) { cb(e); }
+  }
+  async destroy(sid, cb) {
+    try { await q('DELETE FROM sessions WHERE sid=?', [sid]); cb(null); }
+    catch (e) { cb(e); }
+  }
+  async touch(sid, sess, cb) { return this.set(sid, sess, cb); }
+}
+setInterval(async () => {
+  try { await q('DELETE FROM sessions WHERE expired<?', [Date.now()]); } catch (_) {}
+}, 60 * 60 * 1000);
+
 app.use(
   session({
+    store:             new TursoSessionStore(),
     secret:            process.env.SESSION_SECRET || 'leaobaio_secret_2026',
     resave:            false,
     saveUninitialized: false,
@@ -252,15 +391,21 @@ app.get('/api/store', async (req, res) => {
     `);
     const products = productRows.map(p => ({ ...p, sizes: JSON.parse(p.sizes || '[]') }));
 
-    const images = await qa(
-      'SELECT id, product_id, filename, sort_order FROM product_images ORDER BY product_id, sort_order'
-    );
-
-    res.json({ settings, categories, products, images });
+    res.json({ settings, categories, products });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: 'Erro interno.' });
   }
+});
+
+app.get('/api/product/:id/images', async (req, res) => {
+  try {
+    const images = await qa(
+      'SELECT id, product_id, filename, sort_order FROM product_images WHERE product_id=? ORDER BY sort_order',
+      [req.params.id]
+    );
+    res.json(images);
+  } catch (e) { res.status(500).json({ error: 'Erro.' }); }
 });
 
 app.get('/api/product/:id', async (req, res) => {
@@ -282,10 +427,21 @@ app.get('/api/product/:id', async (req, res) => {
 //  AUTH
 // ════════════════════════════════════════════════════════════
 
-app.post('/api/admin/login', async (req, res) => {
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 10,
+  message: { error: 'Muitas tentativas. Tente novamente em 15 minutos.' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+app.post('/api/admin/login', loginLimiter, async (req, res) => {
   const { password } = req.body;
   const stored = await getSetting('admin_password');
-  if (password === stored) {
+  const match  = stored?.startsWith('$2')
+    ? await bcrypt.compare(password, stored)
+    : password === stored;
+  if (match) {
     req.session.admin = true;
     res.json({ ok: true });
   } else {
@@ -381,19 +537,24 @@ app.get('/api/admin/products', requireAuth, async (req, res) => {
 });
 
 app.post('/api/admin/products', requireAuth, async (req, res) => {
-  const { category_id, name, description, price, price_original, badge, sizes, sort_order } = req.body;
+  const { category_id, name, description, price, price_original, badge, sizes, sort_order,
+          weight, length, width, height } = req.body;
   if (!name || !category_id)
     return res.status(400).json({ error: 'Nome e categoria obrigatórios.' });
   try {
     const r = await q(
       `INSERT INTO products
-         (category_id,name,description,price,price_original,badge,sizes,sort_order)
-       VALUES(?,?,?,?,?,?,?,?)`,
+         (category_id,name,description,price,price_original,badge,sizes,sort_order,weight,length,width,height)
+       VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`,
       [
         category_id, name.trim(), description || '',
         parseFloat(price) || 0, parseFloat(price_original) || 0,
         badge || '', JSON.stringify(Array.isArray(sizes) ? sizes : []),
         sort_order || 0,
+        weight != null ? parseFloat(weight) : null,
+        length != null ? parseFloat(length) : null,
+        width  != null ? parseFloat(width)  : null,
+        height != null ? parseFloat(height) : null,
       ]
     );
     res.json({ id: Number(r.lastInsertRowid) });
@@ -401,11 +562,13 @@ app.post('/api/admin/products', requireAuth, async (req, res) => {
 });
 
 app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
-  const { category_id, name, description, price, price_original, badge, sizes, active, sort_order } = req.body;
+  const { category_id, name, description, price, price_original, badge, sizes, active, sort_order,
+          weight, length, width, height } = req.body;
   await q(
     `UPDATE products SET
        category_id=?, name=?, description=?, price=?, price_original=?,
-       badge=?, sizes=?, active=?, sort_order=?
+       badge=?, sizes=?, active=?, sort_order=?,
+       weight=?, length=?, width=?, height=?
      WHERE id=?`,
     [
       category_id, name, description || '',
@@ -413,6 +576,10 @@ app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
       badge || '', JSON.stringify(Array.isArray(sizes) ? sizes : []),
       active !== undefined ? active : 1,
       sort_order || 0,
+      weight != null ? parseFloat(weight) : null,
+      length != null ? parseFloat(length) : null,
+      width  != null ? parseFloat(width)  : null,
+      height != null ? parseFloat(height) : null,
       req.params.id,
     ]
   );
@@ -521,9 +688,14 @@ app.put('/api/admin/settings', requireAuth, async (req, res) => {
   const allowed = [
     'store_name', 'hero_title', 'hero_subtitle', 'hero_badge',
     'announcement', 'whatsapp', 'email', 'free_shipping_above', 'admin_password',
+    'cep_origem', 'correios_usuario',
   ];
-  for (const [k, v] of Object.entries(req.body)) {
-    if (allowed.includes(k)) await setSetting(k, v);
+  for (let [k, v] of Object.entries(req.body)) {
+    if (!allowed.includes(k)) continue;
+    if (k === 'admin_password' && v && v.length >= 6) {
+      v = await bcrypt.hash(v, 12);
+    }
+    await setSetting(k, v);
   }
   res.json({ ok: true });
 });
@@ -548,10 +720,23 @@ app.post('/api/checkout/create-payment-intent', async (req, res) => {
 
     const amountCents = Math.round(total * 100);
     if (amountCents < 50) return res.status(400).json({ error: 'Valor minimo: R$ 0,50' });
+    const address = customer
+      ? `${customer.address || ''}, ${customer.city || ''} - CEP ${customer.cep || ''}`.trim()
+      : '';
     const paymentIntent = await stripe.paymentIntents.create({
       amount: amountCents,
       currency: 'brl',
-      metadata: { customer_name: customer?.name || '', customer_email: customer?.email || '' },
+      metadata: {
+        customer_name:    customer?.name    || '',
+        customer_email:   customer?.email   || '',
+        customer_phone:   customer?.phone   || '',
+        customer_address: address,
+        items_json:       JSON.stringify(items.map(i => ({
+          id: i.id, name: i.name, price: i.price, qty: i.qty || 1, size: i.size || null
+        }))),
+        shipping_method:  customer?.shippingMethod  || '',
+        shipping_price:   String(customer?.shippingPrice || 0),
+      },
     });
     res.json({ clientSecret: paymentIntent.client_secret });
   } catch (e) {
@@ -563,7 +748,7 @@ app.post('/api/checkout/create-payment-intent', async (req, res) => {
 app.post('/api/checkout/confirm', async (req, res) => {
   if (!stripe) return res.status(503).json({ error: 'Pagamentos não configurados.' });
   try {
-    const { paymentIntentId, items, customer, total } = req.body;
+    const { paymentIntentId, items, customer, total, shippingMethod, shippingPrice } = req.body;
 
     // ✅ Evitar pedido duplicado
     const existing = await q1('SELECT id FROM orders WHERE payment_intent_id=?', [paymentIntentId]);
@@ -571,10 +756,11 @@ app.post('/api/checkout/confirm', async (req, res) => {
     const pi = await stripe.paymentIntents.retrieve(paymentIntentId);
     if (pi.status !== 'succeeded') return res.status(400).json({ error: 'Pagamento nao confirmado.' });
     const r = await q(
-      `INSERT INTO orders (payment_intent_id,customer_name,customer_email,customer_phone,customer_address,items_json,total,status) VALUES (?,?,?,?,?,?,?,?)`,
+      `INSERT INTO orders (payment_intent_id,customer_name,customer_email,customer_phone,customer_address,items_json,total,status,shipping_method,shipping_price) VALUES (?,?,?,?,?,?,?,?,?,?)`,
       [paymentIntentId, customer.name, customer.email, customer.phone || '',
        `${customer.address}, ${customer.city} - CEP ${customer.cep}`,
-       JSON.stringify(items), total, 'paid']
+       JSON.stringify(items), total, 'paid',
+       shippingMethod || '', parseFloat(shippingPrice) || 0]
     );
     const orderId = Number(r.lastInsertRowid);
     await sendOrderConfirmation(customer, items, total, orderId);
@@ -596,20 +782,117 @@ app.get('/api/admin/orders', requireAuth, async (req, res) => {
 //  FRONTEND (SPA)
 // ════════════════════════════════════════════════════════════
 
-app.get('/', (req, res) => {
+// ── Helpers de SEO ───────────────────────────────────────────
+const SITE_URL = process.env.SITE_URL || 'https://leaobaio-store.onrender.com';
+
+function buildSchema(type, data) {
+  if (type === 'store') {
+    return JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "ClothingStore",
+      "name": "Leão Baio Store",
+      "url": SITE_URL,
+      "description": "Moda casual com estilo e exclusividade.",
+      "currenciesAccepted": "BRL",
+      "paymentAccepted": "Cartão de crédito, débito",
+      "priceRange": "$$",
+      "image": `${SITE_URL}/og-image.jpg`,
+    });
+  }
+  if (type === 'product') {
+    const p = data;
+    return JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "Product",
+      "name": p.name,
+      "description": p.description || '',
+      "image": p.cover || `${SITE_URL}/og-image.jpg`,
+      "brand": { "@type": "Brand", "name": "Leão Baio" },
+      "offers": {
+        "@type": "Offer",
+        "url": `${SITE_URL}/produto/${p.slug || p.id}`,
+        "priceCurrency": "BRL",
+        "price": p.price.toFixed(2),
+        "availability": p.active ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+        "seller": { "@type": "Organization", "name": "Leão Baio Store" },
+      },
+    });
+  }
+  return '{}';
+}
+
+function injectMeta(html, { title, description, canonical, ogType, ogImage, schema }) {
+  return html
+    .replace(/META_TITLE/g,       title)
+    .replace(/META_DESCRIPTION/g, description)
+    .replace(/META_CANONICAL/g,   canonical)
+    .replace(/META_OG_TYPE/g,     ogType || 'website')
+    .replace(/META_OG_IMAGE/g,    ogImage || `${SITE_URL}/og-image.jpg`)
+    .replace(/META_SCHEMA/g,      schema)
+    .replace('STRIPE_PUBLISHABLE_KEY_PLACEHOLDER', process.env.STRIPE_PUBLISHABLE_KEY || '');
+}
+
+app.get('/', async (req, res) => {
   try {
-    let html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-    html = html.replace('STRIPE_PUBLISHABLE_KEY_PLACEHOLDER', process.env.STRIPE_PUBLISHABLE_KEY || '');
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    const settings = Object.fromEntries(
+      (await qa('SELECT key,value FROM settings')).map(r => [r.key, r.value])
+    );
+    const storeName = settings.store_name || 'Leão Baio Store';
     res.setHeader('Content-Type', 'text/html');
-    res.send(html);
+    res.send(injectMeta(html, {
+      title:       `${storeName} | Moda Casual com Estilo`,
+      description: `${storeName} — ${settings.hero_subtitle || 'Estilo, qualidade e exclusividade em cada peça.'}`,
+      canonical:   SITE_URL + '/',
+      ogType:      'website',
+      schema:      buildSchema('store'),
+    }));
   } catch (e) {
+    console.error(e);
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
   }
 });
+
+// Rota de produto com meta tags dinâmicas (SEO + compartilhamento)
+app.get('/produto/:id', async (req, res) => {
+  try {
+    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
+    const p = await q1('SELECT * FROM products WHERE id=? AND active=1', [req.params.id]);
+    if (!p) return res.redirect('/');
+    const cover = await q1(
+      'SELECT filename FROM product_images WHERE product_id=? ORDER BY sort_order LIMIT 1', [p.id]
+    );
+    p.cover = cover?.filename || null;
+    const desc = p.description
+      ? p.description.slice(0, 155) + (p.description.length > 155 ? '...' : '')
+      : `${p.name} — R$ ${p.price.toFixed(2).replace('.', ',')}. Compre na Leão Baio Store.`;
+    res.setHeader('Content-Type', 'text/html');
+    res.send(injectMeta(html, {
+      title:       `${p.name} | Leão Baio Store`,
+      description: desc,
+      canonical:   `${SITE_URL}/produto/${p.id}`,
+      ogType:      'product',
+      ogImage:     p.cover || `${SITE_URL}/og-image.jpg`,
+      schema:      buildSchema('product', p),
+    }));
+  } catch (e) {
+    console.error(e);
+    res.redirect('/');
+  }
+});
+
 app.get('/admin',   (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 app.get('/admin/*', (req, res) => res.sendFile(path.join(__dirname, 'public', 'admin.html')));
 
 app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+
+// ── Global error handler ─────────────────────────────────────
+// eslint-disable-next-line no-unused-vars
+app.use((err, req, res, next) => {
+  console.error('[ERRO]', err.message || err);
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({ error: err.message || 'Erro interno do servidor.' });
+});
 
 // ── Start ────────────────────────────────────────────────────
 initDB()

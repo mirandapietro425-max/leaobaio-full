@@ -34,6 +34,10 @@ CLOUDINARY_API_SECRET=seu_api_secret
 # Dashboard -> Developers -> API Keys
 STRIPE_SECRET_KEY=sk_live_...
 STRIPE_PUBLISHABLE_KEY=pk_live_...
+# Webhook: Stripe Dashboard -> Developers -> Webhooks -> Add endpoint
+# URL: https://seu-site.onrender.com/api/webhooks/stripe
+# Evento: payment_intent.succeeded
+STRIPE_WEBHOOK_SECRET=whsec_...
 
 # Email (confirmacao de pedidos)
 # Use uma conta Gmail com "Senha de app" ativada

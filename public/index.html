@@ -3,15 +3,34 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Leão Baio Store | Roupas e Acessórios Exclusivos</title>
-<meta name="description" content="Explore a Leão Baio Store: a melhor seleção de roupas e acessórios exclusivos com qualidade e estilo. Compre online com segurança e entrega rápida.">
-<meta name="keywords" content="loja, leão baio, comprar online, roupas, acessórios, store, moda casual">
-<meta property="og:type" content="website">
-<meta property="og:url" content="https://leaobaio-store.onrender.com/">
-<meta property="og:title" content="Leão Baio Store | Estilo e Exclusividade">
-<meta property="og:description" content="Confira as novidades da Leão Baio Store direto no nosso site oficial.">
-<meta property="og:image" content="https://leaobaio-store.onrender.com/og-image.jpg">
+
+<!-- SEO primário -->
+<title>META_TITLE</title>
+<meta name="description" content="META_DESCRIPTION">
+<meta name="keywords" content="leão baio, moda casual, roupas masculinas, roupas femininas, streetwear, comprar online, loja de roupas">
 <meta name="robots" content="index, follow">
+<link rel="canonical" href="META_CANONICAL">
+
+<!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+<meta property="og:type" content="META_OG_TYPE">
+<meta property="og:url" content="META_CANONICAL">
+<meta property="og:site_name" content="Leão Baio Store">
+<meta property="og:locale" content="pt_BR">
+<meta property="og:title" content="META_TITLE">
+<meta property="og:description" content="META_DESCRIPTION">
+<meta property="og:image" content="META_OG_IMAGE">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="META_TITLE">
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="META_TITLE">
+<meta name="twitter:description" content="META_DESCRIPTION">
+<meta name="twitter:image" content="META_OG_IMAGE">
+
+<!-- Schema.org JSON-LD -->
+<script type="application/ld+json">META_SCHEMA</script>
 <meta name="stripe-key" content="STRIPE_PUBLISHABLE_KEY_PLACEHOLDER">
 <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64,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">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -210,10 +229,7 @@ nav a:hover{color:var(--gold)}nav a:hover::after{width:100%}
 }
 .line-gold{
   display:block;
-  background:linear-gradient(135deg,var(--gold-dark) 0%,var(--gold-accent) 40%,var(--gold-bright) 60%,var(--gold-dark) 100%);
-  background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;
-  background-clip:text;
-  animation:shimmer 4s linear infinite
+  color:var(--gold);
 }
 .line-white{display:block;color:var(--white)}
 .hero-divider{
@@ -1200,6 +1216,65 @@ footer::before{
 .notif-progress-fill{height:100%;background:var(--gold);width:100%;animation:notifDrain 3s linear forwards}
 @keyframes notifDrain{from{width:100%}to{width:0%}}
 
+
+/* ── LGPD Cookie Banner ───────────────────────────────────── */
+#cookieBanner{
+  position:fixed;bottom:0;left:0;right:0;z-index:9999;
+  background:var(--black-card);
+  border-top:1px solid var(--border-gold);
+  padding:20px 24px;
+  display:flex;flex-direction:column;gap:14px;
+  transform:translateY(100%);
+  transition:transform .4s cubic-bezier(.4,0,.2,1);
+  box-shadow:0 -8px 40px rgba(0,0,0,.6);
+}
+#cookieBanner.visible{transform:translateY(0)}
+.cookie-row{display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.cookie-icon{font-size:22px;flex-shrink:0;margin-top:2px}
+.cookie-text{flex:1;min-width:200px}
+.cookie-text strong{
+  font-family:var(--font-display);font-size:11px;letter-spacing:3px;
+  color:var(--gold);text-transform:uppercase;display:block;margin-bottom:6px
+}
+.cookie-text p{
+  font-size:12px;color:var(--text-muted);line-height:1.7;margin:0
+}
+.cookie-text a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
+.cookie-actions{display:flex;gap:10px;flex-wrap:wrap;flex-shrink:0;align-items:center}
+.cookie-btn{
+  font-family:var(--font-display);font-size:9px;letter-spacing:3px;
+  padding:10px 20px;cursor:pointer;border-radius:var(--radius);
+  text-transform:uppercase;font-weight:700;transition:all .3s;border:none;white-space:nowrap
+}
+.cookie-btn-accept{
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
+  color:var(--black-deep);
+}
+.cookie-btn-accept:hover{opacity:.85;transform:translateY(-1px)}
+.cookie-btn-essential{
+  background:transparent;color:var(--text-muted);
+  border:1px solid var(--border-gold)!important;
+}
+.cookie-btn-essential:hover{color:var(--gold);border-color:var(--gold)!important}
+.cookie-btn-settings{
+  background:none;color:var(--text-muted);font-size:10px;
+  padding:4px 0;border:none;cursor:pointer;text-decoration:underline;
+  text-underline-offset:3px;letter-spacing:1px;font-family:var(--font-body)
+}
+.cookie-details{
+  border-top:1px solid var(--border-gold);padding-top:14px;
+  display:none;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px
+}
+.cookie-details.open{display:grid}
+.cookie-detail-item{background:var(--black-mid);border:1px solid var(--border-gold);padding:12px 14px;border-radius:var(--radius)}
+.cookie-detail-item label{display:flex;align-items:center;gap:10px;cursor:pointer;font-size:12px;color:var(--text-light)}
+.cookie-detail-item label input{accent-color:var(--gold);width:14px;height:14px;cursor:pointer}
+.cookie-detail-item span{font-size:11px;color:var(--text-muted);display:block;margin-top:4px;line-height:1.5}
+@media(max-width:600px){
+  .cookie-row{flex-direction:column}
+  .cookie-actions{width:100%}
+  .cookie-btn{flex:1;text-align:center}
+}
 </style>
 <style>
 /* ══════════════════════════════════════════
@@ -1377,8 +1452,8 @@ footer::before{
          onerror="this.style.display='none'"/>
     <div class="hero-badge" id="heroBadge">✦ Coleção Premium ✦</div>
     <h1 class="hero-title">
-      <span id="heroLine1">LEÃO BAIO</span>
-      <span id="heroLine2">MODA CASUAL</span>
+      <span id="heroLine1" class="line-white">LEÃO BAIO</span>
+      <span id="heroLine2" class="line-gold">MODA CASUAL</span>
     </h1>
     <p class="hero-sub" id="heroSub">Estilo, qualidade e exclusividade em cada peça</p>
     <div class="hero-actions">
@@ -1753,11 +1828,32 @@ function debounce(func, delay) {
 }
 
 // ── Carregar dados da API ──────────────────────
+// ── Image lazy-load cache ─────────────────────────────────────
+const _imgCache = {};
+async function fetchProductImages(productId) {
+  if (_imgCache[productId]) return _imgCache[productId];
+  try {
+    const r = await fetch(`/api/product/${productId}/images`);
+    const imgs = await r.json();
+    _imgCache[productId] = imgs;
+    // Atualiza storeData.images para que cardSlide etc. funcionem
+    storeData.images = [
+      ...storeData.images.filter(i => i.product_id !== productId),
+      ...imgs,
+    ];
+    return imgs;
+  } catch (_) { return storeData.images.filter(i => i.product_id === productId); }
+}
+
 async function loadStore() {
   showSkeletons(8);
   try {
     const r = await fetch('/api/store');
     storeData = await r.json();
+    // Popula storeData.images com covers — imagens completas carregadas sob demanda
+    storeData.images = storeData.products
+      .filter(p => p.cover)
+      .map(p => ({ id: null, product_id: p.id, filename: p.cover, sort_order: 0 }));
     applySettings(storeData.settings);
     buildFilters(storeData.categories);
     // ✅ Renderiza SOMENTE dentro de #productGrid — nunca substitui #catalog
@@ -2059,18 +2155,17 @@ function confirmAddToCart() {
 
 function addToCart(product, size) {
   const key = `${product.id}_${size || 'sem-tamanho'}`;
-  const imgs = storeData.images.filter(i => i.product_id === product.id).sort((a,b)=>a.sort_order-b.sort_order);
+  const coverImg = product.cover || storeData.images.find(i => i.product_id === product.id)?.filename || null;
   const existing = cart.find(c => c._key === key);
   if (existing) { existing.qty++; }
   else {
     cart.push({
       _key: key, id: product.id,
       name: product.name, price: product.price,
-      size: size, cover: imgs[0]?.filename || null, qty: 1
+      size: size, cover: coverImg, qty: 1
     });
   }
   saveCart(); updateCartUI(); updateFreeShippingBar();
-  const coverImg = imgs[0]?.filename || null;
   showNotification('Adicionado ao carrinho', coverImg, product.name);
   const btn = document.getElementById('addBtn_' + product.id);
   if (btn) {
@@ -2328,14 +2423,15 @@ function showNotification(msg, productImg, productName) {
 let qvProduct = null;
 let qvSelectedSize = null;
 
-function openQuickView(productId) {
+async function openQuickView(productId) {
   const p = storeData?.products?.find(x => x.id === productId);
   if (!p) return;
   qvProduct = p;
   qvSelectedSize = null;
 
   const cat = storeData.categories.find(c => c.id === p.category_id);
-  const imgs = storeData.images.filter(i => i.product_id === p.id).sort((a,b) => a.sort_order - b.sort_order);
+  const imgs = await fetchProductImages(productId);
+  imgs.sort((a,b) => a.sort_order - b.sort_order);
   const disc = p.price_original > p.price ? Math.round((1 - p.price / p.price_original) * 100) : 0;
 
   const mainImg = document.getElementById('qvImgMain');
@@ -2590,5 +2686,82 @@ window.addEventListener('scroll', () => {
 loadStore();
 </script>
 
+
+<!-- LGPD Cookie Banner -->
+<div id="cookieBanner" role="dialog" aria-live="polite" aria-label="Aviso de cookies e privacidade">
+  <div class="cookie-row">
+    <div class="cookie-icon">🍪</div>
+    <div class="cookie-text">
+      <strong>Sua privacidade importa</strong>
+      <p>Usamos cookies para melhorar sua experiência, analisar o tráfego e personalizar conteúdo, em conformidade com a <strong style="color:var(--white)">LGPD (Lei 13.709/2018)</strong>. Você pode aceitar todos ou escolher quais categorias permitir. <a href="#" onclick="cookieShowDetails();return false">Ver detalhes</a></p>
+    </div>
+    <div class="cookie-actions">
+      <button class="cookie-btn cookie-btn-essential" onclick="cookieConsent('essential')">Só essenciais</button>
+      <button class="cookie-btn cookie-btn-accept" onclick="cookieConsent('all')">Aceitar todos</button>
+    </div>
+  </div>
+  <div class="cookie-details" id="cookieDetails">
+    <div class="cookie-detail-item">
+      <label><input type="checkbox" checked disabled> Essenciais</label>
+      <span>Sessão, carrinho e segurança. Sempre ativos, necessários para o funcionamento da loja.</span>
+    </div>
+    <div class="cookie-detail-item">
+      <label><input type="checkbox" id="cookieAnalytics"> Analíticos</label>
+      <span>Ajudam a entender como os visitantes usam o site (páginas vistas, origem do tráfego).</span>
+    </div>
+    <div class="cookie-detail-item">
+      <label><input type="checkbox" id="cookieMarketing"> Marketing</label>
+      <span>Usados para exibir anúncios relevantes e medir a eficácia de campanhas.</span>
+    </div>
+    <div class="cookie-actions" style="grid-column:1/-1;justify-content:flex-end">
+      <button class="cookie-btn cookie-btn-accept" onclick="cookieConsentCustom()">Salvar preferências</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── LGPD Cookie Consent ──────────────────────────────────────
+(function() {
+  const KEY = 'lb_cookie_consent';
+  const stored = localStorage.getItem(KEY);
+  if (!stored) {
+    setTimeout(() => {
+      const b = document.getElementById('cookieBanner');
+      if (b) b.classList.add('visible');
+    }, 1200);
+  }
+})();
+
+function cookieDismiss() {
+  const b = document.getElementById('cookieBanner');
+  if (b) { b.classList.remove('visible'); setTimeout(() => b.remove(), 400); }
+}
+function cookieConsent(type) {
+  const prefs = {
+    version: 1,
+    date: new Date().toISOString(),
+    essential: true,
+    analytics: type === 'all',
+    marketing: type === 'all',
+  };
+  localStorage.setItem('lb_cookie_consent', JSON.stringify(prefs));
+  cookieDismiss();
+}
+function cookieConsentCustom() {
+  const prefs = {
+    version: 1,
+    date: new Date().toISOString(),
+    essential: true,
+    analytics: document.getElementById('cookieAnalytics')?.checked || false,
+    marketing: document.getElementById('cookieMarketing')?.checked || false,
+  };
+  localStorage.setItem('lb_cookie_consent', JSON.stringify(prefs));
+  cookieDismiss();
+}
+function cookieShowDetails() {
+  const d = document.getElementById('cookieDetails');
+  if (d) d.classList.toggle('open');
+}
+</script>
 </body>
 </html>

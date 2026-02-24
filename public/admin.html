@@ -211,7 +211,13 @@ tr:hover td{background:var(--black-hover)}
   .sidebar{display:none}
   .topbar-brand{font-size:13px}
   .page-header{flex-direction:column;align-items:flex-start}
+  .hamburger{display:flex!important}
+  .sidebar.mobile-open{display:flex;position:fixed;top:0;left:0;height:100vh;z-index:1000;width:240px}
+  .sidebar-overlay{display:block!important}
 }
+.hamburger{display:none;flex-direction:column;gap:5px;background:none;border:none;cursor:pointer;padding:6px;margin-right:8px}
+.hamburger span{display:block;width:22px;height:2px;background:var(--gold);border-radius:2px;transition:all .3s}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:999}
 </style>
 </head>
 <body>
@@ -229,8 +235,14 @@ tr:hover td{background:var(--black-hover)}
 
 <!-- APP -->
 <div id="app">
+  <div id="sidebarOverlay" class="sidebar-overlay" onclick="closeMobileNav()"></div>
   <div class="topbar">
-    <span class="topbar-brand">🦁 LEÃO BAIO — Admin</span>
+    <div style="display:flex;align-items:center">
+      <button class="hamburger" id="hamburgerBtn" onclick="toggleMobileNav()" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <span class="topbar-brand">🦁 LEÃO BAIO — Admin</span>
+    </div>
     <div class="topbar-right">
       <a href="/" target="_blank">Ver Loja ↗</a>
       <button class="logout-btn" onclick="doLogout()">Sair</button>
@@ -354,7 +366,7 @@ tr:hover td{background:var(--black-hover)}
         <div class="card">
           <div class="card-title">Pedidos Recentes</div>
           <div id="ordersContent" style="color:var(--text-muted);text-align:center;padding:40px">
-            Clique em Atualizar para carregar os pedidos
+            Carregando pedidos...
           </div>
         </div>
       </div>
@@ -496,6 +508,18 @@ async function doLogin() {
   } catch { err.textContent = 'Erro de conexão.'; }
 }
 
+function toggleMobileNav() {
+  const sidebar = document.querySelector('.sidebar');
+  const overlay = document.getElementById('sidebarOverlay');
+  sidebar.classList.toggle('mobile-open');
+  overlay.classList.toggle('sidebar-overlay-active');
+  if (overlay.style.display === 'block') { overlay.style.display = 'none'; }
+  else { overlay.style.display = 'block'; }
+}
+function closeMobileNav() {
+  document.querySelector('.sidebar').classList.remove('mobile-open');
+  document.getElementById('sidebarOverlay').style.display = 'none';
+}
 async function doLogout() {
   await fetch('/api/admin/logout', { method:'POST' });
   location.reload();
@@ -520,6 +544,7 @@ async function bootApp() {
 
 // ── Pages ─────────────────────────────────────
 function showPage(name) {
+  closeMobileNav();
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-'+name).classList.add('active');
@@ -681,6 +706,10 @@ function openProductModal(product=null) {
   document.getElementById('pActive').value      = product?.active !== undefined ? product.active : 1;
   fillCatSelect(product?.category_id);
   buildSizesUI(product?.sizes || []);
+  document.getElementById('pWeight').value = product?.weight || '';
+  document.getElementById('pLength').value = product?.length || '';
+  document.getElementById('pWidth').value  = product?.width  || '';
+  document.getElementById('pHeight').value = product?.height || '';
   // Images section
   const imgSec = document.getElementById('imagesSection');
   if (product?.id) {
@@ -728,6 +757,10 @@ async function saveProduct() {
     sizes:          [...selectedSizes],
     active:         parseInt(document.getElementById('pActive').value),
     sort_order:     parseInt(document.getElementById('pOrder').value)||0,
+    weight:         parseFloat(document.getElementById('pWeight').value)||null,
+    length:         parseFloat(document.getElementById('pLength').value)||null,
+    width:          parseFloat(document.getElementById('pWidth').value)||null,
+    height:         parseFloat(document.getElementById('pHeight').value)||null,
   };
 
   loading(true);
