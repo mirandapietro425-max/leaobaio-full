@@ -677,6 +677,87 @@ footer::before{
   font-family:var(--font-display);border-radius:var(--radius);text-transform:uppercase;
 }
 
+/* ──── NEWSLETTER no footer ──── */
+.footer-newsletter{
+  background:rgba(201,168,76,.04);border:1px solid var(--border-gold);
+  padding:32px 36px;margin-bottom:64px;display:flex;align-items:center;
+  justify-content:space-between;gap:32px;flex-wrap:wrap;
+}
+.nl-text h4{
+  font-family:var(--font-display);font-size:12px;letter-spacing:4px;
+  color:var(--gold);text-transform:uppercase;margin-bottom:6px;
+}
+.nl-text p{font-size:13px;color:var(--text-muted);line-height:1.7}
+.nl-form{display:flex;gap:0;flex:1;max-width:380px}
+.nl-input{
+  flex:1;background:rgba(8,8,8,.8);border:1px solid var(--border-gold);
+  border-right:none;padding:12px 18px;font-family:var(--font-body);
+  font-size:13px;color:var(--white);outline:none;border-radius:2px 0 0 2px;
+  transition:border-color .3s;
+}
+.nl-input:focus{border-color:var(--gold)}
+.nl-input::placeholder{color:var(--text-muted)}
+.nl-btn{
+  background:var(--gold-dark);border:1px solid var(--gold-dark);
+  color:var(--white);padding:12px 22px;
+  font-family:var(--font-display);font-size:9px;letter-spacing:3px;
+  text-transform:uppercase;cursor:pointer;transition:all .3s;
+  border-radius:0 2px 2px 0;white-space:nowrap;
+}
+.nl-btn:hover{background:var(--gold);border-color:var(--gold);color:var(--black-deep)}
+
+/* ──── TRUST STRIP (antes do footer) ──── */
+.trust-strip{
+  background:var(--black-mid);border-top:1px solid var(--border-gold);
+  border-bottom:1px solid var(--border-gold);padding:36px var(--gutter);
+}
+.trust-strip-inner{
+  max-width:1440px;margin:0 auto;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--border-gold);
+}
+.trust-item{
+  background:var(--black-mid);padding:28px 24px;text-align:center;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+  transition:background .3s;
+}
+.trust-item:hover{background:var(--black-card)}
+.trust-icon{
+  width:48px;height:48px;border:1px solid var(--border-gold);
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:22px;background:rgba(201,168,76,.05);
+  transition:all .3s;
+}
+.trust-item:hover .trust-icon{border-color:var(--gold);background:rgba(201,168,76,.12);box-shadow:0 0 20px rgba(201,168,76,.2)}
+.trust-title{
+  font-family:var(--font-display);font-size:10px;letter-spacing:3px;
+  color:var(--gold);text-transform:uppercase;
+}
+.trust-desc{font-size:12px;color:var(--text-muted);line-height:1.7;max-width:160px}
+
+/* ──── TRUST BADGES no carrinho ──── */
+.cart-trust{
+  display:flex;justify-content:center;gap:16px;flex-wrap:wrap;
+  margin-top:14px;padding-top:14px;border-top:1px solid var(--border-gold);
+}
+.cart-trust-item{
+  display:flex;align-items:center;gap:5px;
+  font-size:10px;color:var(--text-muted);letter-spacing:.3px;
+}
+.cart-trust-item span{font-size:12px}
+
+/* ──── TRUST BADGES no checkout ──── */
+.checkout-trust{
+  display:flex;justify-content:center;gap:20px;flex-wrap:wrap;
+  margin-top:16px;padding-top:16px;border-top:1px solid var(--border-gold);
+}
+.checkout-trust-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:11px;color:var(--text-muted);
+}
+.checkout-trust-item span{font-size:14px}
+
+
 /* ──── MOBILE NAV ──── */
 .mobile-nav{
   position:fixed;inset:0;background:rgba(4,4,4,.97);z-index:1500;
@@ -721,6 +802,7 @@ footer::before{
   .stat-item{border-right:none;border-bottom:1px solid var(--border-gold);padding:24px}
   .stat-item:nth-child(3),.stat-item:nth-child(4){border-bottom:none}
   :root{--gutter:28px}
+  .trust-strip-inner{grid-template-columns:repeat(2,1fr)}
 }
 @media(max-width:900px){
   .product-grid{grid-template-columns:repeat(2,1fr);gap:16px}
@@ -735,6 +817,9 @@ footer::before{
   .footer-top{grid-template-columns:1fr;gap:44px}
   .footer-bottom{flex-direction:column;text-align:center}
   .features-grid{grid-template-columns:1fr}
+  .trust-strip-inner{grid-template-columns:1fr 1fr}
+  .footer-newsletter{flex-direction:column;gap:20px;padding:24px 20px}
+  .nl-form{max-width:100%;width:100%}
   :root{--gutter:20px}
   nav a,
   .product-cat,
@@ -1585,8 +1670,44 @@ footer::before{
 </section>
 
 <!-- FOOTER -->
+<!-- ════ TRUST STRIP ════ -->
+<section class="trust-strip">
+  <div class="trust-strip-inner">
+    <div class="trust-item">
+      <div class="trust-icon">🔒</div>
+      <div class="trust-title">Compra Segura</div>
+      <p class="trust-desc">Pagamento criptografado com SSL e certificação Stripe PCI-DSS</p>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">🚚</div>
+      <div class="trust-title">Entrega Garantida</div>
+      <p class="trust-desc">Enviamos para todo o Brasil com rastreio em tempo real</p>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">↩️</div>
+      <div class="trust-title">Troca Sem Burocracia</div>
+      <p class="trust-desc">30 dias para trocar ou devolver, sem perguntas, sem complicação</p>
+    </div>
+    <div class="trust-item">
+      <div class="trust-icon">💬</div>
+      <div class="trust-title">Suporte Real</div>
+      <p class="trust-desc">Atendimento humano via WhatsApp, seg-sex das 9h às 18h</p>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="footer-inner">
+    <div class="footer-newsletter">
+      <div class="nl-text">
+        <h4>Novidades em primeira mão</h4>
+        <p>Receba lançamentos, promoções exclusivas e dicas de estilo direto no seu e-mail.</p>
+      </div>
+      <div class="nl-form">
+        <input class="nl-input" type="email" placeholder="seu@email.com" id="nlEmail">
+        <button class="nl-btn" onclick="subscribeNewsletter()">Inscrever</button>
+      </div>
+    </div>
     <div class="footer-top">
       <div class="footer-brand">
         <span class="logo-text" id="footerStoreName">Leão Baio</span>
@@ -1650,6 +1771,11 @@ footer::before{
       <span class="cart-total-val" id="cartTotal">R$ 0,00</span>
     </div>
     <button class="btn-checkout" onclick="checkout()">Finalizar Compra →</button>
+    <div class="cart-trust">
+      <div class="cart-trust-item"><span>🔒</span> Pagamento seguro</div>
+      <div class="cart-trust-item"><span>↩️</span> Troca em 30 dias</div>
+      <div class="cart-trust-item"><span>📦</span> Entrega garantida</div>
+    </div>
   </div>
 </div>
 
@@ -1771,6 +1897,11 @@ footer::before{
         🔒 Pagar com Segurança
       </button>
       <div class="pay-error" id="payError"></div>
+      <div class="checkout-trust">
+        <div class="checkout-trust-item"><span>🔒</span> SSL 256-bit</div>
+        <div class="checkout-trust-item"><span>💳</span> Stripe Certificado</div>
+        <div class="checkout-trust-item"><span>🛡️</span> Dados protegidos</div>
+      </div>
     </div>
   </div>
 </div>
@@ -2352,6 +2483,15 @@ function changeQty(key, delta) {
 function removeItem(key) { cart = cart.filter(c => c._key !== key); saveCart(); updateCartUI(); updateFreeShippingBar(); }
 function openCart()  { document.getElementById('cartOverlay').classList.add('open'); document.getElementById('cartDrawer').classList.add('open'); document.body.style.overflow = 'hidden'; updateCartUI(); updateFreeShippingBar(); }
 function closeCart() { document.getElementById('cartOverlay').classList.remove('open'); document.getElementById('cartDrawer').classList.remove('open'); document.body.style.overflow = ''; }
+
+function subscribeNewsletter() {
+  const input = document.getElementById('nlEmail');
+  if (!input) return;
+  const email = input.value.trim();
+  if (!email || !email.includes('@')) { showNotification('⚠️', 'Newsletter', 'Digite um e-mail válido', ''); return; }
+  input.value = '';
+  showNotification('✉️', 'Newsletter', 'E-mail cadastrado com sucesso!', '');
+}
 
 // ══════════════════════════════════════════════
 //  FREE SHIPPING BAR
