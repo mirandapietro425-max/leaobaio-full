@@ -72,6 +72,7 @@ async function setSetting(key, value) {
 }
 
 function getMailTransporter() {
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) return null;
   return nodemailer.createTransport({
     service: 'gmail',
     auth: {
@@ -236,7 +237,8 @@ async function initDB() {
     sizes          TEXT    DEFAULT '[]',
     active         INTEGER DEFAULT 1,
     sort_order     INTEGER DEFAULT 0,
-    created_at     TEXT    DEFAULT (datetime('now'))
+    created_at     TEXT    DEFAULT (datetime('now')),
+    updated_at     TEXT    DEFAULT (datetime('now'))
   )`);
 
   await q(`CREATE TABLE IF NOT EXISTS product_images (
@@ -272,6 +274,7 @@ async function initDB() {
     `ALTER TABLE products ADD COLUMN length REAL DEFAULT NULL`,
     `ALTER TABLE products ADD COLUMN width  REAL DEFAULT NULL`,
     `ALTER TABLE products ADD COLUMN height REAL DEFAULT NULL`,
+    `ALTER TABLE products ADD COLUMN updated_at TEXT DEFAULT (datetime('now'))`,
     `ALTER TABLE orders   ADD COLUMN shipping_method  TEXT DEFAULT ''`,
     `ALTER TABLE orders   ADD COLUMN shipping_price   REAL DEFAULT 0`,
     `ALTER TABLE orders   ADD COLUMN tracking_code    TEXT DEFAULT ''`,
@@ -422,7 +425,7 @@ app.post('/api/webhooks/stripe',
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-app.use('/public', express.static('public'));
+app.use(express.static(path.join(__dirname, 'public')));
 // ── Turso Session Store ──────────────────────────────────────
 const Store = session.Store;
 class TursoSessionStore extends Store {
@@ -667,7 +670,8 @@ app.put('/api/admin/products/:id', requireAuth, async (req, res) => {
     `UPDATE products SET
        category_id=?, name=?, description=?, price=?, price_original=?,
        badge=?, sizes=?, active=?, sort_order=?,
-       weight=?, length=?, width=?, height=?
+       weight=?, length=?, width=?, height=?,
+       updated_at=datetime('now')
      WHERE id=?`,
     [
       category_id, name, description || '',
@@ -804,6 +808,7 @@ app.put('/api/admin/settings', requireAuth, async (req, res) => {
 // ════════════════════════════════════════════════════════════
 
 async function sendShippingNotification(order, items, trackingCode) {
+  const transporter = getMailTransporter();
   if (!transporter) return;
   const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
   const storeEmail = (await getSetting('email')) || process.env.EMAIL_USER;
@@ -1183,7 +1188,20 @@ app.get('/termos', async (req, res) => {
   }
 });
 
-app.use((req, res) => res.status(404).json({ error: 'Rota não encontrada.' }));
+app.use(async (req, res) => {
+  // Rotas de API sempre retornam JSON
+  if (req.path.startsWith('/api/')) {
+    return res.status(404).json({ error: 'Rota não encontrada.' });
+  }
+  // Demais rotas (browser) servem a página 404 personalizada
+  try {
+    res.status(404).setHeader('Content-Type', 'text/html');
+    res.send(await injectStaticPage('404.html'));
+  } catch (e) {
+    // Fallback caso o arquivo 404.html não exista ainda
+    res.status(404).json({ error: 'Página não encontrada.' });
+  }
+});
 
 // ── Global error handler ─────────────────────────────────────
 // eslint-disable-next-line no-unused-vars

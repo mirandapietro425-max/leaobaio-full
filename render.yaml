@@ -13,6 +13,8 @@ services:
         value: 3000
       - key: SESSION_SECRET
         generateValue: true          # Render gera automaticamente
+      - key: SITE_URL
+        sync: false                  # Ex: https://leaobaio-store.onrender.com (sem barra final)
 
       # ── Turso (banco de dados) ─────────────────────────────────
       - key: TURSO_DATABASE_URL

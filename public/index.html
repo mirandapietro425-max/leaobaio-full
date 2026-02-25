@@ -2012,7 +2012,7 @@ footer::before{
 // ══════════════════════════════════════════════
 let storeData   = null;
 let cart        = JSON.parse(localStorage.getItem('lb_cart') || '[]');
-let currentFilter = 'all';
+window._currentFilter = 'all';
 let pendingProduct = null;
 
 // ── Sincronizar carrinho entre abas ──────────
@@ -2152,8 +2152,10 @@ function updateFooter(s, cats) {
   document.getElementById('footerPhone').textContent     = s?.whatsapp   || '';
   document.getElementById('footerEmail').textContent     = s?.email      || '';
   if (s?.whatsapp) {
-    const num = s.whatsapp.replace(/\D/g, '');
-    document.getElementById('whatsappLink').href = `https://wa.me/55${num}`;
+    const raw = s.whatsapp.replace(/\D/g, '');
+    // Garante o DDI 55 apenas uma vez
+    const num = raw.startsWith('55') ? raw : '55' + raw;
+    document.getElementById('whatsappLink').href = `https://wa.me/${num}`;
   }
   const footerCats = document.getElementById('footerCats');
   if (cats) {
@@ -2169,7 +2171,7 @@ function updateFooter(s, cats) {
 //  ✅ SOMENTE escreve em #productGrid
 // ══════════════════════════════════════════════
 function filterProducts(filter) {
-  currentFilter = filter;
+  window._currentFilter = filter;
   document.querySelectorAll('.filter-btn').forEach(b => {
     const isAll    = filter === 'all' && b.textContent.trim() === 'Todos';
     const isCat    = filter.startsWith('cat:') && b.getAttribute('onclick')?.includes(filter);
@@ -2549,6 +2551,25 @@ function initStripe() {
       let v = e.target.value.replace(/\D/g, '');
       if (v.length > 5) v = v.slice(0, 5) + '-' + v.slice(5, 8);
       e.target.value = v;
+    });
+
+    // Autocomplete de endereço via ViaCEP
+    cepInput.addEventListener('blur', async (e) => {
+      const cep = e.target.value.replace(/\D/g, '');
+      if (cep.length !== 8) return;
+      const addrInput = document.getElementById('coAddress');
+      const cityInput = document.getElementById('coCity');
+      try {
+        const r = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
+        const data = await r.json();
+        if (data.erro) return;
+        if (addrInput && !addrInput.value.trim()) {
+          addrInput.value = [data.logradouro, data.bairro].filter(Boolean).join(', ');
+        }
+        if (cityInput && !cityInput.value.trim()) {
+          cityInput.value = data.localidade || '';
+        }
+      } catch (_) { /* silencioso — ViaCEP indisponível */ }
     });
   }
 }
