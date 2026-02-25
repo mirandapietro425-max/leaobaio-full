@@ -1096,8 +1096,7 @@ app.get('/sitemap.xml', async (req, res) => {
     res.setHeader('Content-Type', 'application/xml');
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('
-')}
+${urls.join('\n')}
 </urlset>`);
   } catch (e) {
     res.status(500).send('Erro ao gerar sitemap.');
@@ -1122,8 +1121,7 @@ app.get('/api/admin/orders/export', requireAuth, async (req, res) => {
       o.status||'',
       o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '',
     ].join(';'));
-    const csv = [header.join(';'), ...rows].join('
-');
+    const csv = [header.join(';'), ...rows].join('\n');
     const filename = `pedidos-${new Date().toISOString().split('T')[0]}.csv`;
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
