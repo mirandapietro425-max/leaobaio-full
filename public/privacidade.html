@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Política de Privacidade — STORE_NAME</title>
+<meta name="description" content="Política de Privacidade da STORE_NAME. Saiba como coletamos, usamos e protegemos seus dados pessoais, em conformidade com a LGPD.">
+<link rel="canonical" href="CANONICAL_URL/privacidade">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-bright:#E8C96A;--gold-dark:#8A6A20;
+  --black:#080808;--black-mid:#0F0F0F;--black-card:#161616;
+  --white:#F5F0E8;--text-muted:#888;--text-light:#ccc;
+  --border-gold:rgba(201,168,76,.2);
+  --font-display:'Cinzel',serif;--font-body:'Raleway',sans-serif;
+}
+html,body{min-height:100%;font-family:var(--font-body);background:var(--black);color:var(--white)}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gold-dark)}
+
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 60% 40% at 50% 0%,rgba(201,168,76,.06) 0%,transparent 50%);pointer-events:none}
+
+.page{max-width:820px;margin:0 auto;padding:0 24px 80px;position:relative;z-index:1}
+
+/* Header */
+.site-header{
+  border-bottom:1px solid var(--border-gold);padding:20px 0;
+  display:flex;align-items:center;justify-content:space-between;margin-bottom:60px;
+}
+.logo-link{font-family:var(--font-display);font-size:13px;letter-spacing:5px;color:var(--gold);text-decoration:none;text-transform:uppercase;font-weight:700}
+.back-link{font-family:var(--font-display);font-size:9px;letter-spacing:2px;color:var(--text-muted);text-decoration:none;text-transform:uppercase;transition:color .2s}
+.back-link:hover{color:var(--gold)}
+
+/* Page title */
+.page-tag{font-family:var(--font-display);font-size:8px;letter-spacing:6px;color:var(--text-muted);text-transform:uppercase;margin-bottom:16px}
+.page-title{font-family:var(--font-display);font-size:clamp(26px,5vw,44px);font-weight:700;color:var(--gold);letter-spacing:2px;line-height:1.1;margin-bottom:12px}
+.page-updated{font-size:12px;color:var(--text-muted);margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid var(--border-gold)}
+.page-updated span{color:var(--text-light)}
+
+/* TOC */
+.toc{background:var(--black-card);border:1px solid var(--border-gold);padding:28px 32px;margin-bottom:48px}
+.toc-title{font-family:var(--font-display);font-size:9px;letter-spacing:4px;color:var(--gold-dark);text-transform:uppercase;margin-bottom:16px}
+.toc ol{padding-left:0;list-style:none;counter-reset:toc}
+.toc li{counter-increment:toc;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.04)}
+.toc li:last-child{border-bottom:none}
+.toc a{font-size:13px;color:var(--text-muted);text-decoration:none;display:flex;gap:12px;align-items:baseline;transition:color .2s}
+.toc a::before{content:counter(toc,decimal-leading-zero);font-family:var(--font-display);font-size:9px;color:var(--gold-dark);letter-spacing:1px;flex-shrink:0}
+.toc a:hover{color:var(--gold)}
+
+/* Content */
+.section{margin-bottom:48px}
+.section-number{font-family:var(--font-display);font-size:9px;letter-spacing:3px;color:var(--gold-dark);text-transform:uppercase;margin-bottom:10px;display:block}
+.section h2{font-family:var(--font-display);font-size:16px;letter-spacing:2px;color:var(--gold);text-transform:uppercase;margin-bottom:20px;padding-bottom:12px;border-bottom:1px solid var(--border-gold)}
+.section p{font-size:14px;color:var(--text-light);line-height:2;margin-bottom:14px}
+.section p:last-child{margin-bottom:0}
+.section ul,.section ol{padding-left:20px;margin-bottom:14px}
+.section li{font-size:14px;color:var(--text-light);line-height:2;margin-bottom:4px}
+.section strong{color:var(--white);font-weight:600}
+
+/* Highlight boxes */
+.highlight{background:rgba(201,168,76,.05);border-left:3px solid var(--gold-dark);padding:18px 24px;margin:20px 0}
+.highlight p{margin:0;font-size:13px;color:var(--text-light);line-height:1.8}
+
+/* Contact box */
+.contact-box{background:var(--black-card);border:1px solid var(--border-gold);padding:28px 32px;margin-top:48px}
+.contact-box h3{font-family:var(--font-display);font-size:12px;letter-spacing:3px;color:var(--gold);text-transform:uppercase;margin-bottom:16px}
+.contact-line{font-size:13px;color:var(--text-light);margin-bottom:8px;display:flex;align-items:center;gap:10px}
+.contact-line a{color:var(--gold);text-decoration:none}
+
+/* Footer */
+.doc-footer{margin-top:60px;padding-top:24px;border-top:1px solid var(--border-gold);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.doc-footer a{font-size:12px;color:var(--text-muted);text-decoration:none;transition:color .2s}
+.doc-footer a:hover{color:var(--gold)}
+
+@media(max-width:600px){
+  .page{padding:0 16px 60px}
+  .toc{padding:20px}
+  .section h2{font-size:14px}
+  .contact-box{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="site-header">
+    <a href="/" class="logo-link">🦁 STORE_NAME_PLACEHOLDER</a>
+    <a href="/" class="back-link">← Voltar à Loja</a>
+  </header>
+
+  <div class="page-tag">Documentos Legais</div>
+  <h1 class="page-title">Política de<br>Privacidade</h1>
+  <p class="page-updated">Última atualização: <span>LAST_UPDATED</span> · Em conformidade com a Lei nº 13.709/2018 (LGPD)</p>
+
+  <nav class="toc" aria-label="Sumário">
+    <div class="toc-title">Nesta página</div>
+    <ol>
+      <li><a href="#sec1">Quem somos e como nos contatar</a></li>
+      <li><a href="#sec2">Dados pessoais que coletamos</a></li>
+      <li><a href="#sec3">Como usamos seus dados</a></li>
+      <li><a href="#sec4">Bases legais do tratamento</a></li>
+      <li><a href="#sec5">Compartilhamento de dados</a></li>
+      <li><a href="#sec6">Cookies e rastreamento</a></li>
+      <li><a href="#sec7">Segurança dos dados</a></li>
+      <li><a href="#sec8">Seus direitos como titular</a></li>
+      <li><a href="#sec9">Retenção e exclusão</a></li>
+      <li><a href="#sec10">Alterações nesta política</a></li>
+    </ol>
+  </nav>
+
+  <div class="highlight">
+    <p><strong>Resumo:</strong> Coletamos apenas os dados necessários para processar seus pedidos e melhorar sua experiência de compra. Nunca vendemos suas informações a terceiros. Você tem direito de acessar, corrigir e excluir seus dados a qualquer momento.</p>
+  </div>
+
+  <section class="section" id="sec1">
+    <span class="section-number">01</span>
+    <h2>Quem somos e como nos contatar</h2>
+    <p><strong>STORE_NAME_PLACEHOLDER</strong> é uma loja de moda casual online, operada por pessoa física/jurídica com sede no Brasil.</p>
+    <p>Para exercer seus direitos ou esclarecer dúvidas sobre esta Política de Privacidade, entre em contato pelo e-mail: <strong>CONTACT_EMAIL_PLACEHOLDER</strong> ou via WhatsApp <strong>WHATSAPP_PLACEHOLDER</strong>.</p>
+    <p>Somos o <strong>controlador</strong> dos dados pessoais tratados nesta política, conforme definido pelo Art. 5º, VI da LGPD.</p>
+  </section>
+
+  <section class="section" id="sec2">
+    <span class="section-number">02</span>
+    <h2>Dados pessoais que coletamos</h2>
+    <p>Coletamos apenas os dados estritamente necessários para o funcionamento da loja:</p>
+    <ul>
+      <li><strong>Dados cadastrais:</strong> nome completo, endereço de e-mail, número de telefone/WhatsApp</li>
+      <li><strong>Dados de entrega:</strong> endereço completo (rua, número, complemento, bairro, cidade, estado, CEP)</li>
+      <li><strong>Dados de pagamento:</strong> processados diretamente pela <strong>Stripe</strong>, uma plataforma de pagamentos segura. Não armazenamos dados de cartão de crédito em nossos servidores</li>
+      <li><strong>Dados de navegação:</strong> páginas visitadas, produtos visualizados, tempo de sessão — usados apenas para melhorar a experiência</li>
+      <li><strong>Cookies de sessão:</strong> necessários para manter o carrinho de compras e autenticação</li>
+    </ul>
+    <p>Não coletamos dados sensíveis conforme definido no Art. 5º, II da LGPD.</p>
+  </section>
+
+  <section class="section" id="sec3">
+    <span class="section-number">03</span>
+    <h2>Como usamos seus dados</h2>
+    <p>Utilizamos suas informações exclusivamente para:</p>
+    <ul>
+      <li>Processar, confirmar e enviar seus pedidos</li>
+      <li>Enviar e-mails transacionais: confirmação de pedido e código de rastreio</li>
+      <li>Responder dúvidas e solicitações pelo WhatsApp ou e-mail</li>
+      <li>Prevenir fraudes e garantir a segurança das transações</li>
+      <li>Cumprir obrigações legais e fiscais aplicáveis</li>
+      <li>Melhorar os produtos, preços e a experiência de navegação da loja</li>
+    </ul>
+    <p>Não realizamos marketing automatizado, profiling ou tomada de decisão automatizada sobre seus dados.</p>
+  </section>
+
+  <section class="section" id="sec4">
+    <span class="section-number">04</span>
+    <h2>Bases legais do tratamento</h2>
+    <p>Todo tratamento de dados pessoais é realizado com base nas seguintes hipóteses legais previstas no Art. 7º da LGPD:</p>
+    <ul>
+      <li><strong>Execução de contrato</strong> (Art. 7º, V): dados necessários para processar e entregar seu pedido</li>
+      <li><strong>Legítimo interesse</strong> (Art. 7º, IX): prevenção a fraudes e segurança da plataforma</li>
+      <li><strong>Cumprimento de obrigação legal</strong> (Art. 7º, II): emissão de notas fiscais e obrigações tributárias</li>
+      <li><strong>Consentimento</strong> (Art. 7º, I): para cookies analíticos e de marketing, quando você optar por aceitá-los</li>
+    </ul>
+  </section>
+
+  <section class="section" id="sec5">
+    <span class="section-number">05</span>
+    <h2>Compartilhamento de dados</h2>
+    <p>Seus dados pessoais são compartilhados <strong>somente</strong> com os seguintes parceiros essenciais para o funcionamento da loja:</p>
+    <ul>
+      <li><strong>Stripe Inc.</strong> — processamento de pagamentos (EUA). <a href="https://stripe.com/br/privacy" target="_blank" rel="noopener" style="color:var(--gold)">Política de privacidade</a></li>
+      <li><strong>Cloudinary Inc.</strong> — armazenamento de imagens dos produtos (EUA). Não recebe dados pessoais de clientes</li>
+      <li><strong>Turso / ChiselStrike Inc.</strong> — banco de dados em nuvem (EUA). Dados protegidos por criptografia em repouso</li>
+      <li><strong>Google LLC</strong> — fontes web (Google Fonts). Não recebe dados de compra</li>
+      <li><strong>Correios</strong> — serviço de entrega. Recebe nome e endereço de entrega</li>
+    </ul>
+    <p>Não vendemos, alugamos nem cedemos seus dados pessoais a terceiros para fins comerciais.</p>
+    <p>Todos os parceiros acima possuem adequação ou salvaguardas conforme Art. 33 da LGPD para transferência internacional de dados.</p>
+  </section>
+
+  <section class="section" id="sec6">
+    <span class="section-number">06</span>
+    <h2>Cookies e rastreamento</h2>
+    <p>Utilizamos cookies para os seguintes fins:</p>
+    <ul>
+      <li><strong>Cookies essenciais:</strong> sessão do usuário, carrinho de compras. Necessários para o funcionamento da loja — não podem ser desativados</li>
+      <li><strong>Cookies analíticos:</strong> análise de tráfego e comportamento de navegação — <em>somente com seu consentimento</em></li>
+      <li><strong>Cookies de marketing:</strong> rastreamento de campanhas publicitárias — <em>somente com seu consentimento</em></li>
+    </ul>
+    <p>Você pode gerenciar suas preferências de cookies a qualquer momento clicando em "Gerenciar preferências" no banner de cookies ou limpando os cookies do seu navegador.</p>
+    <p>Não utilizamos cookies de terceiros para rastreamento entre sites sem seu consentimento explícito.</p>
+  </section>
+
+  <section class="section" id="sec7">
+    <span class="section-number">07</span>
+    <h2>Segurança dos dados</h2>
+    <p>Adotamos medidas técnicas e organizacionais para proteger seus dados pessoais:</p>
+    <ul>
+      <li>Comunicações protegidas por <strong>HTTPS/TLS</strong> em toda a loja</li>
+      <li>Dados de pagamento processados exclusivamente pela Stripe (padrão PCI-DSS Level 1)</li>
+      <li>Senhas administrativas armazenadas com hash <strong>bcrypt</strong> (salt 12)</li>
+      <li>Banco de dados com criptografia em repouso via Turso</li>
+      <li>Acesso administrativo protegido por autenticação e limite de tentativas</li>
+    </ul>
+    <p>Em caso de incidente de segurança que possa afetar seus dados, notificaremos a ANPD e os titulares afetados conforme exigido pelo Art. 48 da LGPD, no prazo de até 2 dias úteis após a ciência do incidente.</p>
+  </section>
+
+  <section class="section" id="sec8">
+    <span class="section-number">08</span>
+    <h2>Seus direitos como titular</h2>
+    <p>Conforme o Art. 18 da LGPD, você tem os seguintes direitos em relação aos seus dados pessoais:</p>
+    <ul>
+      <li><strong>Confirmação e acesso:</strong> saber se tratamos seus dados e obter uma cópia</li>
+      <li><strong>Correção:</strong> atualizar dados incompletos, inexatos ou desatualizados</li>
+      <li><strong>Anonimização, bloqueio ou eliminação:</strong> de dados desnecessários ou tratados em desconformidade</li>
+      <li><strong>Portabilidade:</strong> receber seus dados em formato estruturado e interoperável</li>
+      <li><strong>Eliminação:</strong> excluir dados tratados com base no consentimento</li>
+      <li><strong>Revogação do consentimento:</strong> retirar consentimento dado anteriormente</li>
+      <li><strong>Oposição:</strong> se opor a tratamentos realizados sem consentimento</li>
+      <li><strong>Informação sobre compartilhamento:</strong> saber com quem compartilhamos seus dados</li>
+    </ul>
+    <p>Para exercer qualquer desses direitos, entre em contato conosco pelo e-mail <strong>CONTACT_EMAIL_PLACEHOLDER</strong>. Responderemos em até 15 dias úteis.</p>
+  </section>
+
+  <section class="section" id="sec9">
+    <span class="section-number">09</span>
+    <h2>Retenção e exclusão dos dados</h2>
+    <p>Mantemos seus dados pelo tempo necessário para cumprir as finalidades descritas nesta política:</p>
+    <ul>
+      <li><strong>Dados de pedidos:</strong> 5 anos, conforme exigências fiscais e comerciais (Código Civil, Art. 206)</li>
+      <li><strong>Dados de sessão:</strong> até 30 dias ou até o encerramento da sessão</li>
+      <li><strong>Logs de acesso:</strong> 6 meses, conforme o Marco Civil da Internet (Art. 15)</li>
+      <li><strong>Dados de marketing:</strong> até revogação do consentimento</li>
+    </ul>
+    <p>Após o prazo de retenção ou a solicitação de exclusão, os dados são anonimizados ou permanentemente deletados de nossos sistemas.</p>
+  </section>
+
+  <section class="section" id="sec10">
+    <span class="section-number">10</span>
+    <h2>Alterações nesta política</h2>
+    <p>Podemos atualizar esta Política de Privacidade periodicamente. Quando isso ocorrer, atualizaremos a data no topo deste documento e, em caso de alterações significativas, notificaremos por e-mail os clientes cadastrados com pelo menos 10 dias de antecedência.</p>
+    <p>O uso continuado da loja após as alterações implica aceitação da nova política.</p>
+  </section>
+
+  <div class="contact-box">
+    <h3>Fale com nosso responsável de dados (DPO)</h3>
+    <div class="contact-line">📧 <a href="mailto:CONTACT_EMAIL_PLACEHOLDER">CONTACT_EMAIL_PLACEHOLDER</a></div>
+    <div class="contact-line">💬 WhatsApp: <strong>WHATSAPP_PLACEHOLDER</strong></div>
+    <div class="contact-line">⏰ Atendimento: Segunda a Sexta, 9h às 18h (horário de Brasília)</div>
+    <div class="contact-line">🏛 Autoridade Nacional de Proteção de Dados (ANPD): <a href="https://www.gov.br/anpd" target="_blank" rel="noopener" style="color:var(--gold)">gov.br/anpd</a></div>
+  </div>
+
+  <footer class="doc-footer">
+    <span style="font-size:12px;color:var(--text-muted)">© YEAR STORE_NAME_PLACEHOLDER · Todos os direitos reservados</span>
+    <div style="display:flex;gap:20px">
+      <a href="/termos">Termos de Uso</a>
+      <a href="/">Voltar à Loja</a>
+    </div>
+  </footer>
+
+</div>
+</body>
+</html>

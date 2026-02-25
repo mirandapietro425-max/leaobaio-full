@@ -1096,7 +1096,8 @@ app.get('/sitemap.xml', async (req, res) => {
     res.setHeader('Content-Type', 'application/xml');
     res.send(`<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-${urls.join('\n')}
+${urls.join('
+')}
 </urlset>`);
   } catch (e) {
     res.status(500).send('Erro ao gerar sitemap.');
@@ -1121,7 +1122,8 @@ app.get('/api/admin/orders/export', requireAuth, async (req, res) => {
       o.status||'',
       o.created_at ? new Date(o.created_at).toLocaleDateString('pt-BR') : '',
     ].join(';'));
-    const csv = [header.join(';'), ...rows].join('\n');
+    const csv = [header.join(';'), ...rows].join('
+');
     const filename = `pedidos-${new Date().toISOString().split('T')[0]}.csv`;
     res.setHeader('Content-Type', 'text/csv; charset=utf-8');
     res.setHeader('Content-Disposition', `attachment; filename="${filename}"`);
@@ -1131,40 +1133,55 @@ app.get('/api/admin/orders/export', requireAuth, async (req, res) => {
   }
 });
 
-// ── Política de Privacidade ──────────────────────────────────
-app.get('/privacidade', async (req, res) => {
+// ── Helper: inject settings into static HTML pages ──────────
+async function injectStaticPage(filename) {
+  const raw        = fs.readFileSync(path.join(__dirname, 'public', filename), 'utf8');
+  const storeName  = (await getSetting('store_name'))  || 'Leão Baio Store';
+  const storeEmail = (await getSetting('email'))        || process.env.EMAIL_USER || '';
+  const whatsapp   = (await getSetting('whatsapp'))     || '';
+  const now        = new Date();
+  const lastUpd    = now.toLocaleDateString('pt-BR', { day:'2-digit', month:'long', year:'numeric' });
+  return raw
+    .replace(/STORE_NAME_PLACEHOLDER/g, storeName)
+    .replace(/STORE_NAME/g,             storeName)
+    .replace(/CONTACT_EMAIL_PLACEHOLDER/g, storeEmail)
+    .replace(/CONTACT_EMAIL_VAL/g,      storeEmail)
+    .replace(/WHATSAPP_PLACEHOLDER/g,   whatsapp || 'não informado')
+    .replace(/WHATSAPP_NUMBER/g,        whatsapp.replace(/\D/g, ''))
+    .replace(/WHATSAPP_LINK/g,          whatsapp ? `https://wa.me/${whatsapp.replace(/\D/g, '')}` : '#')
+    .replace(/CANONICAL_URL/g,          SITE_URL)
+    .replace(/LAST_UPDATED/g,           lastUpd)
+    .replace(/YEAR/g,                   String(now.getFullYear()));
+}
+
+// ── Pedido confirmado ─────────────────────────────────────────
+app.get('/pedido-confirmado', async (req, res) => {
   try {
-    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-    const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
-    const storeEmail = (await getSetting('email')) || '';
     res.setHeader('Content-Type', 'text/html');
-    res.send(injectMeta(html, {
-      title: `Política de Privacidade — ${storeName}`,
-      description: `Saiba como a ${storeName} coleta, usa e protege seus dados pessoais, em conformidade com a LGPD.`,
-      canonical: `${SITE_URL}/privacidade`,
-      ogType: 'website',
-      schema: '{}',
-    }));
+    res.send(await injectStaticPage('success.html'));
   } catch (e) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    console.error(e);
+    res.redirect('/');
   }
 });
 
-// ── Termos de Uso ────────────────────────────────────────────
+// ── Política de Privacidade ───────────────────────────────────
+app.get('/privacidade', async (req, res) => {
+  try {
+    res.setHeader('Content-Type', 'text/html');
+    res.send(await injectStaticPage('privacidade.html'));
+  } catch (e) {
+    res.redirect('/');
+  }
+});
+
+// ── Termos de Uso ─────────────────────────────────────────────
 app.get('/termos', async (req, res) => {
   try {
-    const html = fs.readFileSync(path.join(__dirname, 'public', 'index.html'), 'utf8');
-    const storeName = (await getSetting('store_name')) || 'Leão Baio Store';
     res.setHeader('Content-Type', 'text/html');
-    res.send(injectMeta(html, {
-      title: `Termos de Uso — ${storeName}`,
-      description: `Leia os termos e condições de uso da ${storeName} antes de realizar sua compra.`,
-      canonical: `${SITE_URL}/termos`,
-      ogType: 'website',
-      schema: '{}',
-    }));
+    res.send(await injectStaticPage('termos.html'));
   } catch (e) {
-    res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    res.redirect('/');
   }
 });
 

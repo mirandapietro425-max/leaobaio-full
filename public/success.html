@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pedido Confirmado — STORE_NAME</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700;900&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-bright:#E8C96A;--gold-dark:#8A6A20;
+  --black:#080808;--black-mid:#0F0F0F;--black-card:#161616;
+  --white:#F5F0E8;--text-muted:#888;--text-light:#bbb;
+  --border-gold:rgba(201,168,76,.2);
+  --font-display:'Cinzel',serif;--font-body:'Raleway',sans-serif;
+}
+html,body{min-height:100%;font-family:var(--font-body);background:var(--black);color:var(--white);overflow-x:hidden}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:var(--gold-dark)}
+
+/* ── Page background ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(201,168,76,.08) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(201,168,76,.04) 0%, transparent 50%);
+  pointer-events:none;z-index:0;
+}
+
+/* ── Particle grid ── */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:linear-gradient(rgba(201,168,76,.03) 1px,transparent 1px),linear-gradient(90deg,rgba(201,168,76,.03) 1px,transparent 1px);
+  background-size:60px 60px;pointer-events:none;z-index:0;
+}
+
+/* ── Layout ── */
+.page{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+/* ── Header strip ── */
+.top-strip{
+  background:var(--black-mid);border-bottom:1px solid var(--border-gold);
+  padding:18px 32px;display:flex;align-items:center;justify-content:space-between;
+}
+.store-logo{
+  font-family:var(--font-display);font-size:14px;letter-spacing:5px;
+  color:var(--gold);text-transform:uppercase;text-decoration:none;font-weight:700;
+}
+.back-link{
+  font-family:var(--font-display);font-size:9px;letter-spacing:3px;
+  color:var(--text-muted);text-decoration:none;text-transform:uppercase;
+  border:1px solid var(--border-gold);padding:8px 18px;transition:all .3s;
+}
+.back-link:hover{color:var(--gold);border-color:var(--gold)}
+
+/* ── Hero ── */
+.hero-section{
+  flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;padding:60px 24px 40px;text-align:center;
+}
+.success-ring{
+  position:relative;width:96px;height:96px;margin-bottom:36px;
+  animation:ringIn .8s cubic-bezier(.34,1.56,.64,1) forwards;
+}
+.success-ring svg{width:96px;height:96px}
+.ring-bg{stroke:rgba(201,168,76,.12)}
+.ring-fill{
+  stroke:var(--gold);stroke-dasharray:251;stroke-dashoffset:251;
+  animation:ringDraw 1s cubic-bezier(.4,0,.2,1) .3s forwards;
+}
+.ring-check{
+  stroke:var(--gold-bright);stroke-width:2.5;stroke-dasharray:40;stroke-dashoffset:40;
+  animation:checkDraw .5s ease .9s forwards;
+}
+@keyframes ringIn{from{opacity:0;transform:scale(.6)}to{opacity:1;transform:scale(1)}}
+@keyframes ringDraw{to{stroke-dashoffset:0}}
+@keyframes checkDraw{to{stroke-dashoffset:0}}
+
+.hero-tag{
+  font-family:var(--font-display);font-size:8px;letter-spacing:6px;
+  color:var(--text-muted);text-transform:uppercase;margin-bottom:14px;
+  animation:fadeUp .6s ease .4s both;
+}
+.hero-title{
+  font-family:var(--font-display);font-size:clamp(28px,6vw,52px);
+  font-weight:900;color:var(--gold);letter-spacing:3px;
+  text-transform:uppercase;line-height:1;margin-bottom:16px;
+  animation:fadeUp .6s ease .5s both;
+}
+.hero-sub{
+  font-size:14px;color:var(--text-muted);line-height:1.8;max-width:440px;
+  animation:fadeUp .6s ease .6s both;
+}
+.hero-sub strong{color:var(--white)}
+
+.order-pill{
+  display:inline-flex;align-items:center;gap:10px;
+  background:rgba(201,168,76,.08);border:1px solid rgba(201,168,76,.25);
+  padding:10px 24px;margin:24px auto 0;
+  font-family:var(--font-display);font-size:11px;letter-spacing:3px;color:var(--gold);
+  text-transform:uppercase;
+  animation:fadeUp .6s ease .7s both;
+}
+.order-pill span{color:var(--white);font-weight:700}
+
+/* ── Content grid ── */
+.content{max-width:900px;margin:0 auto;padding:0 24px 80px;width:100%}
+
+/* ── Steps ── */
+.steps{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+  background:var(--border-gold);border:1px solid var(--border-gold);
+  margin-bottom:40px;
+  animation:fadeUp .6s ease .8s both;
+}
+.step{
+  background:var(--black);padding:32px 24px;text-align:center;
+  position:relative;overflow:hidden;
+}
+.step::before{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,transparent,var(--gold-dark),transparent);
+  transform:scaleX(0);transition:transform .4s;
+}
+.step:hover::before{transform:scaleX(1)}
+.step-num{
+  font-family:var(--font-display);font-size:9px;letter-spacing:3px;
+  color:var(--gold-dark);text-transform:uppercase;margin-bottom:14px;display:block;
+}
+.step-icon{font-size:28px;display:block;margin-bottom:14px}
+.step-title{
+  font-family:var(--font-display);font-size:11px;letter-spacing:2px;
+  color:var(--gold);text-transform:uppercase;margin-bottom:8px;
+}
+.step-desc{font-size:12px;color:var(--text-muted);line-height:1.7}
+
+/* ── Info cards ── */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:40px;animation:fadeUp .6s ease 1s both}
+.info-card{background:var(--black-card);border:1px solid var(--border-gold);padding:28px}
+.info-card-label{
+  font-family:var(--font-display);font-size:8px;letter-spacing:4px;
+  color:var(--gold-dark);text-transform:uppercase;margin-bottom:16px;
+  display:flex;align-items:center;gap:10px;
+}
+.info-card-label::after{content:'';flex:1;height:1px;background:var(--border-gold)}
+.info-line{font-size:13px;color:var(--text-light);line-height:1.8;margin-bottom:4px}
+.info-val{color:var(--white);font-weight:500}
+
+/* ── Items table ── */
+.items-section{background:var(--black-card);border:1px solid var(--border-gold);margin-bottom:40px;animation:fadeUp .6s ease 1.1s both}
+.items-header{
+  padding:18px 28px;border-bottom:1px solid var(--border-gold);
+  font-family:var(--font-display);font-size:9px;letter-spacing:4px;
+  color:var(--gold);text-transform:uppercase;
+}
+.item-row{
+  display:flex;justify-content:space-between;align-items:center;
+  padding:16px 28px;border-bottom:1px solid rgba(255,255,255,.04);
+}
+.item-row:last-child{border-bottom:none}
+.item-name{font-size:13px;color:var(--white)}
+.item-meta{font-size:11px;color:var(--text-muted);margin-top:2px}
+.item-price{font-family:var(--font-display);font-size:14px;color:var(--gold);white-space:nowrap;margin-left:20px}
+.total-row{
+  display:flex;justify-content:space-between;align-items:baseline;
+  padding:20px 28px;border-top:1px solid var(--border-gold);
+  background:rgba(201,168,76,.03);
+}
+.total-label{font-family:var(--font-display);font-size:9px;letter-spacing:3px;color:var(--text-muted);text-transform:uppercase}
+.total-val{font-family:var(--font-display);font-size:28px;font-weight:700;color:var(--gold-bright)}
+
+/* ── CTA ── */
+.cta-section{
+  display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  animation:fadeUp .6s ease 1.2s both;
+}
+.btn-primary{
+  font-family:var(--font-display);font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;padding:16px 36px;cursor:pointer;
+  background:linear-gradient(135deg,var(--gold-dark),var(--gold-bright));
+  color:var(--black);border:none;text-decoration:none;display:inline-block;
+  font-weight:700;transition:all .3s;
+}
+.btn-primary:hover{opacity:.85;transform:translateY(-2px);box-shadow:0 12px 40px rgba(201,168,76,.3)}
+.btn-outline{
+  font-family:var(--font-display);font-size:10px;letter-spacing:4px;
+  text-transform:uppercase;padding:15px 36px;cursor:pointer;
+  background:transparent;color:var(--gold);
+  border:1px solid rgba(201,168,76,.4);text-decoration:none;display:inline-block;
+  transition:all .3s;
+}
+.btn-outline:hover{border-color:var(--gold);background:rgba(201,168,76,.06)}
+
+/* ── Footer ── */
+.page-footer{
+  border-top:1px solid var(--border-gold);padding:24px 32px;
+  display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px;
+  background:var(--black-mid);
+}
+.footer-note{font-size:12px;color:var(--text-muted)}
+.footer-note a{color:var(--gold);text-decoration:none}
+.pay-badges{display:flex;gap:8px}
+.pay-b{
+  font-family:var(--font-display);font-size:8px;letter-spacing:1px;
+  border:1px solid var(--border-gold);color:var(--text-muted);padding:4px 10px;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+
+@media(max-width:700px){
+  .steps{grid-template-columns:1fr}
+  .info-grid{grid-template-columns:1fr}
+  .hero-title{font-size:clamp(24px,8vw,36px)}
+  .top-strip{padding:16px 20px}
+  .content{padding:0 16px 60px}
+  .item-row{padding:14px 20px}
+  .items-header{padding:16px 20px}
+  .total-row{padding:16px 20px}
+  .info-card{padding:20px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <header class="top-strip">
+    <a href="/" class="store-logo">🦁 STORE_NAME_PLACEHOLDER</a>
+    <a href="/" class="back-link">← Voltar à Loja</a>
+  </header>
+
+  <section class="hero-section">
+    <!-- Animated check ring -->
+    <div class="success-ring">
+      <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="48" cy="48" r="40" stroke-width="1.5" class="ring-bg"/>
+        <circle cx="48" cy="48" r="40" stroke-width="1.5" stroke-linecap="round" class="ring-fill" transform="rotate(-90 48 48)"/>
+        <polyline points="30,49 42,61 66,36" stroke-linecap="round" stroke-linejoin="round" fill="none" class="ring-check"/>
+      </svg>
+    </div>
+
+    <div class="hero-tag">Compra realizada com sucesso</div>
+    <h1 class="hero-title">Obrigado!</h1>
+    <p class="hero-sub">
+      <strong id="custName">Seu pedido</strong> foi confirmado e já está sendo<br>
+      preparado com atenção a cada detalhe.
+    </p>
+    <div class="order-pill">Pedido <span id="orderNum">#—</span></div>
+  </section>
+
+  <div class="content">
+
+    <!-- Next steps -->
+    <div class="steps">
+      <div class="step">
+        <span class="step-num">01</span>
+        <span class="step-icon">📧</span>
+        <div class="step-title">Confirmação</div>
+        <div class="step-desc">Você receberá um e-mail de confirmação com todos os detalhes do pedido.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">02</span>
+        <span class="step-icon">📦</span>
+        <div class="step-title">Preparação</div>
+        <div class="step-desc">Seu pedido será separado e embalado com cuidado em até 2 dias úteis.</div>
+      </div>
+      <div class="step">
+        <span class="step-num">03</span>
+        <span class="step-icon">🚚</span>
+        <div class="step-title">Envio</div>
+        <div class="step-desc">Você receberá o código de rastreio assim que o pedido for despachado.</div>
+      </div>
+    </div>
+
+    <!-- Info cards -->
+    <div class="info-grid" id="infoGrid">
+      <div class="info-card" id="customerCard">
+        <div class="info-card-label">Dados do cliente</div>
+        <div class="info-line">Nome: <span class="info-val" id="infoName">—</span></div>
+        <div class="info-line">E-mail: <span class="info-val" id="infoEmail">—</span></div>
+        <div class="info-line">Telefone: <span class="info-val" id="infoPhone">—</span></div>
+      </div>
+      <div class="info-card">
+        <div class="info-card-label">Endereço de entrega</div>
+        <div class="info-line info-val" id="infoAddress" style="line-height:1.8">—</div>
+      </div>
+    </div>
+
+    <!-- Items -->
+    <div class="items-section" id="itemsSection" style="display:none">
+      <div class="items-header">Itens do pedido</div>
+      <div id="itemsList"></div>
+      <div class="total-row">
+        <span class="total-label">Total</span>
+        <span class="total-val" id="infoTotal">—</span>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="cta-section">
+      <a href="/" class="btn-primary">Continuar Comprando</a>
+      <a href="WHATSAPP_LINK" id="whatsappBtn" class="btn-outline" style="display:none" target="_blank" rel="noopener">💬 Falar no WhatsApp</a>
+    </div>
+
+  </div>
+
+  <footer class="page-footer">
+    <span class="footer-note">Dúvidas? <a href="CONTACT_EMAIL" id="contactLink">Entre em contato</a></span>
+    <div class="pay-badges">
+      <span class="pay-b">VISA</span>
+      <span class="pay-b">MASTER</span>
+      <span class="pay-b">PIX</span>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function() {
+  // Read data injected by server via query params + sessionStorage
+  const params = new URLSearchParams(window.location.search);
+  const orderId = params.get('id') || sessionStorage.getItem('lb_last_order_id') || '—';
+  const raw = sessionStorage.getItem('lb_order_data');
+  let order = null;
+  try { order = raw ? JSON.parse(raw) : null; } catch(_) {}
+
+  // Set order number
+  document.getElementById('orderNum').textContent = '#' + orderId;
+
+  if (order) {
+    // Customer info
+    const name = order.customer?.name || '';
+    if (name) {
+      document.getElementById('custName').textContent = name;
+      document.getElementById('infoName').textContent = name;
+    }
+    document.getElementById('infoEmail').textContent   = order.customer?.email   || '—';
+    document.getElementById('infoPhone').textContent   = order.customer?.phone   || '—';
+    const addr = [order.customer?.address, order.customer?.city, order.customer?.cep ? 'CEP ' + order.customer.cep : ''].filter(Boolean).join(', ');
+    document.getElementById('infoAddress').textContent = addr || '—';
+
+    // Items
+    if (order.items && order.items.length) {
+      const list = document.getElementById('itemsList');
+      list.innerHTML = order.items.map(i => `
+        <div class="item-row">
+          <div>
+            <div class="item-name">${i.name}</div>
+            <div class="item-meta">${i.size ? 'Tam. ' + i.size + ' · ' : ''}Qtd. ${i.qty || 1}</div>
+          </div>
+          <div class="item-price">R$ ${((i.price||0)*(i.qty||1)).toFixed(2).replace('.',',')}</div>
+        </div>`).join('');
+      document.getElementById('infoTotal').textContent = 'R$ ' + (order.total||0).toFixed(2).replace('.',',');
+      document.getElementById('itemsSection').style.display = 'block';
+    }
+
+    // Clear session data after reading
+    sessionStorage.removeItem('lb_order_data');
+    sessionStorage.removeItem('lb_last_order_id');
+  }
+
+  // WhatsApp button (injected by server placeholder)
+  const wa = 'WHATSAPP_NUMBER';
+  if (wa && wa !== 'WHATSAPP_NUMBER') {
+    const btn = document.getElementById('whatsappBtn');
+    btn.href = 'https://wa.me/' + wa.replace(/\D/g,'') + '?text=Olá!%20Fiz%20o%20pedido%20%23' + orderId + '%20e%20gostaria%20de%20confirmar%20o%20envio.';
+    btn.style.display = 'inline-block';
+  }
+
+  // Contact email
+  const email = 'CONTACT_EMAIL_VAL';
+  if (email && email !== 'CONTACT_EMAIL_VAL') {
+    const cl = document.getElementById('contactLink');
+    if (cl) { cl.href = 'mailto:' + email; cl.textContent = email; }
+  }
+})();
+</script>
+</body>
+</html>

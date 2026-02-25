@@ -2493,14 +2493,25 @@ async function submitPayment() {
     }
 
     if (paymentIntent.status === 'succeeded') {
-      await fetch('/api/checkout/confirm', {
+      const confirmResp = await fetch('/api/checkout/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ paymentIntentId: paymentIntent.id, items: cart, customer: { name, email, phone, address, city, cep }, total: getCartTotal() }),
       });
+      const confirmResult = confirmResp.ok ? await confirmResp.json() : {};
+      // Save order data to sessionStorage for success page
+      const orderData = {
+        customer: { name, email, phone, address, city, cep },
+        items: cart,
+        total: getCartTotal(),
+      };
+      sessionStorage.setItem('lb_order_data', JSON.stringify(orderData));
+      sessionStorage.setItem('lb_last_order_id', confirmResult?.orderId || '');
+
       cart = []; saveCart(); updateCartUI(); closeCart();
-      document.getElementById('payForm').style.display = 'none';
-      document.getElementById('paySuccess').style.display = 'block';
+
+      // Redirect to dedicated success page
+      window.location.href = '/pedido-confirmado?id=' + (confirmResult?.orderId || '');
     }
   } catch (e) {
     errEl.textContent = 'Erro de conexão. Tente novamente.';
@@ -2844,7 +2855,15 @@ window.addEventListener('scroll', () => {
   window._hideIntro = () => { clearTimeout(timer); setTimeout(hide, 200); };
 })();
 
-loadStore().then(()=>{ if(window._hideIntro) window._hideIntro(); }).catch(()=>{ if(window._hideIntro) window._hideIntro(); });
+loadStore().then(() => {
+  if (window._hideIntro) window._hideIntro();
+  // If URL is /produto/:id, auto-open that product
+  const m = window.location.pathname.match(/^\/produto\/(\d+)/);
+  if (m) {
+    const pid = parseInt(m[1]);
+    setTimeout(() => openQuickView(pid), 300);
+  }
+}).catch(() => { if (window._hideIntro) window._hideIntro(); });
 </script>
 
 
